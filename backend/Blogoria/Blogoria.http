@@ -1,6 +1,0 @@
-@Blogoria_HostAddress = http://localhost:5162
-
-GET {{Blogoria_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

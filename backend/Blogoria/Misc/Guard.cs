@@ -7,7 +7,7 @@ namespace Blogoria.Misc
     {
         public static void AgainstNullString(string value, string property)
         {
-            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrEmpty(value))
+            if (string.IsNullOrWhiteSpace(value))
                 throw new InvalidStringException($"{property} cannot be empty.");
         }
 

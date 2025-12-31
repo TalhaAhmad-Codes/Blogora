@@ -1,5 +1,7 @@
 ﻿using Blogoria.Misc;
+using Blogoria.Misc.Exceptions;
 using Blogoria.Models.ValueObjects;
+using Microsoft.AspNetCore.Identity;
 
 namespace Blogoria.Models.Entities
 {
@@ -9,27 +11,27 @@ namespace Blogoria.Models.Entities
         public byte[]? ProfilePic { get; private set; }
         public Email Email { get; private set; }
         public string Username { get; private set; }
-        public string Password { get; private set; }
+        public string PasswordHash { get; private set; }
 
         // Constructors
         private User() { }
 
-        private User(byte[]? profilePic, Email email, string username, string password)
+        private User(byte[]? profilePic, Email email, string username, string passwordHash)
         {
             // Guard against invalid values
             Guard.AgainstNullString(username, nameof(Username));
-            Guard.AgainstNullString(password, nameof(Password));
+            Guard.AgainstNullString(passwordHash, nameof(PasswordHash));
 
             // Assigning values
             ProfilePic = profilePic;
             Email = email;
             Username = username;
-            Password = password;
+            PasswordHash = passwordHash;
         }
 
         // Method - Create a new user
-        public static User Create(byte[]? profilePic, Email email, string username, string password)
-            => new(profilePic, email, username, password);
+        public static User Create(byte[]? profilePic, Email email, string username, string passwordHash)
+            => new(profilePic, email, username, passwordHash);
 
         /*******************************************/
         /* Methods - Change properties of the User */
@@ -64,12 +66,14 @@ namespace Blogoria.Models.Entities
         // Update password
         public void UpdatePassword(string oldPassword, string newPassword)
         {
-            // Rule: For security concern, the user must enter old password to change his current password.
-            if (Password != oldPassword)
-                throw new InvalidOperationException("Provided password didn't match with old one.");
-            Guard.AgainstNullString(newPassword, nameof(Password));
+            Guard.AgainstNullString(oldPassword, nameof(PasswordHash));
+            Guard.AgainstNullString(newPassword, nameof(PasswordHash));
 
-            Password = newPassword;
+            // Rule: For security concern, the user must enter old password to change his current password.
+            if (!PasswordHasher.Verify(oldPassword, PasswordHash))
+                throw new InvalidCredentialsException("Provided password didn't match with old one.");
+
+            PasswordHash = PasswordHasher.Hash(newPassword);
 
             MarkUpdate();
         }

@@ -1,4 +1,5 @@
-﻿using Blogoria.Models.Enums;
+﻿using Blogoria.Misc;
+using Blogoria.Models.Enums;
 
 namespace Blogoria.Models.Entities
 {
@@ -6,14 +7,18 @@ namespace Blogoria.Models.Entities
     {
         // Attributes
         public int UserId { get; private set; }
-        public User User { get; private set; }
         public ReactOnPost ReactOnPost { get; private set; }
+        
+        // Navigation property (EF Core)
+        public User User { get; private set; }
 
         // Constructors
         private UserReaction() { }
         
         private UserReaction(int userId, ReactOnPost reactOnPost)
         {
+            Guard.AgainstZeroOrLess(userId, nameof(UserId));
+
             UserId = userId;
             ReactOnPost = reactOnPost;
         }

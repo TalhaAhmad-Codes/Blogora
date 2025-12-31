@@ -1,5 +1,5 @@
 ﻿using Blogoria.Misc;
-using Blogoria.Models.Enums;
+using Blogoria.Misc.Exceptions;
 
 namespace Blogoria.Models.Entities
 {
@@ -9,32 +9,37 @@ namespace Blogoria.Models.Entities
         public byte[]? FeaturedImage { get; private set; }
         public string Title { get; private set; }
         public string Description { get; private set; }
-        public Dictionary<int, UserReaction> Reactions { get; private set; }
-        public Dictionary<int, UserComment> Comments { get; private set; }
+        private readonly List<UserReaction> _reactions = new();
+        private readonly List<UserComment> _comments = new();
         public int UserId { get; private set; }
+        
+        // Navigation properties (EF Core)
         public User User { get; private set; }
+        public IReadOnlyCollection<UserComment> Comments
+            => _comments;
+        public IReadOnlyCollection<UserReaction> Reactions 
+            => _reactions;
 
         // Constructors
         private Blog() { }
 
-        private Blog(byte[]? featuredImage, string title, string description, Dictionary<int, UserReaction> reactions, Dictionary<int, UserComment> comments, int userId)
+        private Blog(byte[]? featuredImage, string title, string description, int userId)
         {
             // Guard against invalid values
             Guard.AgainstNullString(title, nameof(Title));
             Guard.AgainstNullString(description, nameof(Description));
+            Guard.AgainstZeroOrLess(userId, nameof(UserId));
 
             // Assigning values
             FeaturedImage = featuredImage;
             Title = title;
             Description = description;
-            Reactions = reactions;
-            Comments = comments;
             UserId = userId;
         }
 
         // Method - Create a new blog
-        public static Blog Create(byte[]? featuredImage, string title, string description, Dictionary<int, UserReaction> reactions, Dictionary<int, UserComment> comments, int userId)
-            => new(featuredImage, title, description, reactions, comments, userId);
+        public static Blog Create(byte[]? featuredImage, string title, string description, int userId)
+            => new(featuredImage, title, description, userId);
 
         /*******************************************/
         /* Methods - Change properties of the Blog */
@@ -69,48 +74,44 @@ namespace Blogoria.Models.Entities
         }
 
         // Add a user's reaction
-        public void AddUserReaction(int userReactionId, UserReaction userReaction)
+        public void AddUserReaction(UserReaction userReaction)
         {
             // Rule: User can't react on his own blog
             if (userReaction.UserId == UserId)
-                throw new InvalidOperationException("User can't react on his own post.");
+                throw new SelfReactionException("User can't react on his own post.");
 
-            Reactions.Add(userReactionId, userReaction);
-            MarkUpdate();
-        }
+            // Rule: User can't react on an already reacted blog
+            if (_reactions.Any(r => r.UserId == userReaction.UserId))
+                throw new DuplicateReactionException("User has already reacted to this blog.");
 
-        // Update a user's reaction
-        public void UpdateUserReaction(int userReactionId, ReactOnPost reactOnPost)
-        {
-            Reactions[userReactionId].UpdateReactOnPost(reactOnPost);
+            _reactions.Add(userReaction);
+
             MarkUpdate();
         }
 
         // Remove a user's reaction
-        public void RemoveUserReaction(int userReactionId)
+        public void RemoveUserReaction(UserReaction userReaction)
         {
-            Reactions.Remove(userReactionId);
+            if (!_reactions.Remove(userReaction))
+                throw new EntityNotFoundException("Reaction not found.");
+
             MarkUpdate();
         }
 
         // Add a user's comment
-        public void AddUserComment(int userCommentId, UserComment userComment)
+        public void AddUserComment(UserComment userComment)
         {
-            Comments.Add(userCommentId, userComment);
-            MarkUpdate();
-        }
+            _comments.Add(userComment);
 
-        // Update a user's comment
-        public void UpdateUserComment(int userCommentId, string comment)
-        {
-            Comments[userCommentId].UpdateComment(comment);
             MarkUpdate();
         }
 
         // Remove a user's comment
-        public void RemoveUserComment(int userCommentId)
+        public void RemoveUserComment(UserComment userComment)
         {
-            Comments.Remove(userCommentId);
+            if (!_comments.Remove(userComment))
+                throw new EntityNotFoundException("Comment not found.");
+
             MarkUpdate();
         }
     }

@@ -21,6 +21,14 @@ namespace Blogoria.Models.ValueObjects
             return new Email(value);
         }
 
+        // Method - Check equality
+        public override bool Equals(object? obj)
+            => obj is Email other && Value == other.Value;
+
+        // Method - Get hashed code of the email
+        public override int GetHashCode()
+            => Value.GetHashCode();
+
         // Method - To string convertor
         public override string ToString()
             => Value;

@@ -6,8 +6,10 @@ namespace Blogoria.Models.Entities
     {
         // Attributes
         public int UserId { get; private set; }
-        public User User { get; private set; }
         public string Comment { get; private set; }
+        
+        // Navigation property (EF Core)
+        public User User { get; private set; }
 
         // Constructors
         private UserComment() { }
@@ -15,6 +17,7 @@ namespace Blogoria.Models.Entities
         private UserComment(int userId, string comment)
         {
             // Guard against invalid value
+            Guard.AgainstZeroOrLess(userId, nameof(userId));
             Guard.AgainstNullString(comment, nameof(Comment));
 
             // Assigning values

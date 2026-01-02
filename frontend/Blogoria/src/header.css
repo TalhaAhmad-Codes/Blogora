@@ -1,0 +1,33 @@
+body{
+    margin: 0px;
+    padding: 0px;
+}
+.header{
+    display: flex;
+    justify-content: space-between;
+    background-color: gray;
+    padding: 10px;
+}
+.header .link{
+    text-decoration: none;
+    color: black;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.header ul{
+    display: flex;
+    list-style-type: none;
+    margin: auto;
+    justify-content: space-around;
+    width: 350px;
+}
+.header ul li{
+    padding-top:5px;
+}
+ .header .link h2{
+    margin: 0;
+    color: black;
+ }
+ .active{
+   font-weight: bold;
+
+ }

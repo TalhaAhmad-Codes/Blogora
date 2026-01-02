@@ -1,4 +1,3 @@
-
 namespace Blogoria
 {
     public class Program

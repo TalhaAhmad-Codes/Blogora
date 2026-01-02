@@ -1,3 +1,8 @@
+using Blogoria.Data;
+using Blogoria.Interfaces.Repositories;
+using Blogoria.Repositories;
+using Microsoft.EntityFrameworkCore;
+
 namespace Blogoria
 {
     public class Program
@@ -5,6 +10,17 @@ namespace Blogoria
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Add database connection
+            builder.Services.AddDbContext<BlogoriaDbContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            // Add repositories
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserCommentRepository, UserCommentRepository>();
+            builder.Services.AddScoped<IUserReactionRepository, UserReactionRepository>();
+            builder.Services.AddScoped<IBlogRepository, BlogRepository>();
 
             // Add services to the container.
             builder.Services.AddControllers();
@@ -33,7 +49,6 @@ namespace Blogoria
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
-
 
             app.MapControllers();
 

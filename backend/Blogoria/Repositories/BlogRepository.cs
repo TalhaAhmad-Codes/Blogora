@@ -12,6 +12,13 @@ namespace Blogoria.Repositories
         // Constructor
         public BlogRepository(BlogoriaDbContext context) : base(context) { }
 
+        // Method - Get blog by id including comments and reactions
+        public async Task<Blog?> GetBlogAsync(int id)
+            => await _dbSet
+                .Include(b => b.Comments)
+                .Include(b => b.Reactions)
+                .FirstOrDefaultAsync(b => b.Id == id);
+
         // Method - Get all blogs by applying filters
         public async Task<PagedResultDto<Blog>> GetFilteredBlogsAsync(BlogFilterDto filter)
         {

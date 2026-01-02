@@ -18,8 +18,8 @@ namespace Blogoria.Repositories
         }
 
         // Method - Get all entities
-        public async Task<IQueryable<T>?> GetAllAsync()
-            => _dbSet.AsQueryable();
+        public async Task<IEnumerable<T>?> GetAllAsync()
+            => await _dbSet.ToListAsync();
 
         // Method - Get entity by Id
         public async Task<T?> GetByIdAsync(int id)

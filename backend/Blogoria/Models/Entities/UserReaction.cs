@@ -7,7 +7,7 @@ namespace Blogoria.Models.Entities
     {
         // Attributes
         public int UserId { get; private set; }
-        public ReactOnPost ReactOnPost { get; private set; }
+        public ReactionType ReactionType { get; private set; }
         
         // Navigation property (EF Core)
         public User User { get; private set; }
@@ -15,22 +15,22 @@ namespace Blogoria.Models.Entities
         // Constructors
         private UserReaction() { }
         
-        private UserReaction(int userId, ReactOnPost reactOnPost)
+        private UserReaction(int userId, ReactionType reactionType)
         {
             Guard.AgainstZeroOrLess(userId, nameof(UserId));
 
             UserId = userId;
-            ReactOnPost = reactOnPost;
+            ReactionType = reactionType;
         }
 
         // Method - Create a new user reaction
-        public static UserReaction Create(int userId, ReactOnPost reactOnPost)
-            => new(userId, reactOnPost);
+        public static UserReaction Create(int userId, ReactionType reactionType)
+            => new(userId, reactionType);
 
         // Method - Update reaction
-        public void UpdateReactOnPost(ReactOnPost reactOnPost)
+        public void UpdateReactionType(ReactionType reactOnPost)
         {
-            ReactOnPost = reactOnPost;
+            ReactionType = reactOnPost;
             MarkUpdate();
         }
     }

@@ -1,6 +1,6 @@
 ﻿namespace Blogoria.Models.Enums
 {
-    public enum ReactOnPost
+    public enum ReactionType
     {
         Like = 1,
         Dislike = 2

@@ -18,10 +18,10 @@ namespace Blogoria.Models.Entities
         
         // Navigation properties (EF Core)
         public User User { get; private set; }
-        public IReadOnlyCollection<UserComment> Comments
-            => _comments;
-        public IReadOnlyCollection<UserReaction> Reactions 
-            => _reactions;
+        public IQueryable<UserComment> Comments
+            => _comments.AsQueryable();
+        public IQueryable<UserReaction> Reactions 
+            => _reactions.AsQueryable();
 
         // Constructors
         private Blog() { }

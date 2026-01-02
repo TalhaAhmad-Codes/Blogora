@@ -6,7 +6,8 @@ namespace Blogoria.Models.ValueObjects
     {
         public string Value { get; }
 
-        // Constructor
+        // Constructors
+        private Email() { }
         private Email(string value) => Value = value;
 
         // Method - Create an email object

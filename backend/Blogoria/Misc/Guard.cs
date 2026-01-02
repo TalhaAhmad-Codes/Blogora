@@ -23,10 +23,10 @@ namespace Blogoria.Misc
                 throw new InvalidValueException($"{property} must be greater than zero.");
         }
 
-        public static void AgainstZeroOrLess(decimal value, string property)
+        public static void AgainstLowPasswordLength(string value, int limit, string property)
         {
-            if (value <= 0)
-                throw new InvalidValueException($"{property} must be greater than zero.");
+            if (value.Length < limit)
+                throw new InvalidCredentialsException($"{property} length must be at least {limit}.");
         }
 
         public static void AgainstOutOfRange(int rangeStart, int rangeEnd, int value, string property)

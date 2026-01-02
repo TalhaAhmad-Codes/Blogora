@@ -1,7 +1,6 @@
 ﻿using Blogoria.Misc;
 using Blogoria.Misc.Exceptions;
 using Blogoria.Models.ValueObjects;
-using Microsoft.AspNetCore.Identity;
 
 namespace Blogoria.Models.Entities
 {
@@ -16,22 +15,23 @@ namespace Blogoria.Models.Entities
         // Constructors
         private User() { }
 
-        private User(byte[]? profilePic, Email email, string username, string passwordHash)
+        private User(byte[]? profilePic, Email email, string username, string password)
         {
             // Guard against invalid values
             Guard.AgainstNullString(username, nameof(Username));
-            Guard.AgainstNullString(passwordHash, nameof(PasswordHash));
+            Guard.AgainstNullString(password, nameof(PasswordHash));
+            Guard.AgainstLowPasswordLength(password, 8, nameof(PasswordHash));
 
             // Assigning values
             ProfilePic = profilePic;
             Email = email;
             Username = username;
-            PasswordHash = passwordHash;
+            PasswordHash = PasswordHasher.Hash(password);
         }
 
         // Method - Create a new user
-        public static User Create(byte[]? profilePic, Email email, string username, string passwordHash)
-            => new(profilePic, email, username, passwordHash);
+        public static User Create(byte[]? profilePic, Email email, string username, string password)
+            => new(profilePic, email, username, password);
 
         /*******************************************/
         /* Methods - Change properties of the User */
@@ -68,6 +68,7 @@ namespace Blogoria.Models.Entities
         {
             Guard.AgainstNullString(oldPassword, nameof(PasswordHash));
             Guard.AgainstNullString(newPassword, nameof(PasswordHash));
+            Guard.AgainstLowPasswordLength(newPassword, 8, nameof(PasswordHash));
 
             // Rule: For security concern, the user must enter old password to change his current password.
             if (!PasswordHasher.Verify(oldPassword, PasswordHash))

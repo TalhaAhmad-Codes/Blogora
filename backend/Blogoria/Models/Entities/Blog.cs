@@ -12,13 +12,16 @@ namespace Blogoria.Models.Entities
         private readonly List<UserReaction> _reactions = new();
         private readonly List<UserComment> _comments = new();
         public int UserId { get; private set; }
+
+        public int TotalReactions => _reactions.Count;
+        public int TotalComments => _comments.Count;
         
         // Navigation properties (EF Core)
         public User User { get; private set; }
-        public IReadOnlyCollection<UserComment> Comments
-            => _comments;
-        public IReadOnlyCollection<UserReaction> Reactions 
-            => _reactions;
+        public IQueryable<UserComment> Comments
+            => _comments.AsQueryable();
+        public IQueryable<UserReaction> Reactions 
+            => _reactions.AsQueryable();
 
         // Constructors
         private Blog() { }

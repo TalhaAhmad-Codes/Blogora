@@ -1,39 +1,57 @@
 ﻿using Blogoria.Data;
-using Blogoria.DTOs.Common;
-using Blogoria.DTOs.UserCommentDTOs;
-using Blogoria.Interfaces.Repositories;
 using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public class UserCommentRepository : GeneralRepository<UserComment>, IUserCommentRepository
+    public class UserCommentRepository : IUserCommentRepository
     {
+        private readonly BlogoriaDbContext _context;
+
         // Constructor
-        public UserCommentRepository(BlogoriaDbContext context) : base(context) { }
+        public UserCommentRepository(BlogoriaDbContext context) => _context = context;
 
-        // Method - Get all user comments by applying filters
-        public async Task<PagedResultDto<UserComment>> GetFilteredUserCommentsAsync(UserCommentFilterDto filter)
-        {
-            var query = _dbSet.AsQueryable();
+        // Get user comment by id
+        public async Task<UserComment?> GetByIdAsync(int id)
+            => await _context.UserComments
+                .Include(c => c.BlogId)     // To let frontend know on which blog the user had commented
+                .Include(c => c.UserId)     // To let frontend know which user had commented
+                .FirstOrDefaultAsync(c => c.Id == c.Id);
 
-            // Applying filters
-            if (filter.UserId.HasValue)
-                query = query.Where(c => c.UserId == filter.UserId);
-
-            // Calculation & applying paged result
-            var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
+        // Get user comments by blog id
+        public async Task<IReadOnlyList<UserComment>> GetByBlogIdAsync(int blogId)
+            => await _context.UserComments
+                .Include(c => c.UserId)     // To let frontend know which user had commented
+                .Where(c => c.BlogId == blogId)
                 .ToListAsync();
 
-            return new PagedResultDto<UserComment>
-            {
-                Items = items,
-                TotalCount = totalCount
-            };
+        // Get user comments by user id
+        public async Task<IReadOnlyList<UserComment>> GetByUserIdAsync(int userId)
+            => await _context.UserComments
+                .Include(r => r.BlogId)     // To let frontend know on which blog user had commented
+                .Where(c => c.UserId == userId)
+                .ToListAsync();
+
+        // Add a user comment
+        public async Task AddAsync(UserComment userComment)
+        {
+            _context.UserComments.Add(userComment);
+            await _context.SaveChangesAsync();
+        }
+
+        // Update a user comment
+        public async Task UpdateAsync(UserComment userComment)
+        {
+            _context.UserComments.Update(userComment);
+            await _context.SaveChangesAsync();
+        }
+
+        // Remove a user comment
+        public async Task RemoveAsync(UserComment userComment)
+        {
+            _context.UserComments.Remove(userComment);
+            await _context.SaveChangesAsync();
         }
     }
 }

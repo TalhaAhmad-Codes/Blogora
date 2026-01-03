@@ -1,6 +1,6 @@
 using Blogoria.Data;
-using Blogoria.Interfaces.Repositories;
 using Blogoria.Repositories;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria

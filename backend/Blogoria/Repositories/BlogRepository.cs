@@ -1,61 +1,48 @@
 ﻿using Blogoria.Data;
-using Blogoria.DTOs.BlogDTOs;
-using Blogoria.DTOs.Common;
-using Blogoria.Interfaces.Repositories;
 using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public sealed class BlogRepository : GeneralRepository<Blog>, IBlogRepository
+    public class BlogRepository : IBlogRepository
     {
-        // Constructor
-        public BlogRepository(BlogoriaDbContext context) : base(context) { }
+        private readonly BlogoriaDbContext _context;
 
-        // Method - Get blog by id including comments and reactions
-        public async Task<Blog?> GetBlogAsync(int id)
-            => await _dbSet
-                .Include(b => b.Comments)
-                .Include(b => b.Reactions)
+        // Constructor
+        public BlogRepository(BlogoriaDbContext context) => _context = context;
+
+        // Get blog by id
+        public async Task<Blog?> GetByIdAsync(int id)
+            => await _context.Blogs
+                .Include(b => b.User)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
-        // Method - Get all blogs by applying filters
-        public async Task<PagedResultDto<Blog>> GetFilteredBlogsAsync(BlogFilterDto filter)
-        {
-            var query = _dbSet.AsQueryable();
-
-            // Applying filters
-            if (filter.BlogUserId.HasValue)
-                query = query.Where(b => b.UserId == filter.BlogUserId.Value);
-
-            if (filter.MinReactionsCount.HasValue)
-                query = query.Where(b => b.TotalReactions >= filter.MinReactionsCount.Value);
-
-            if (filter.MaxReactionsCount.HasValue)
-                query = query.Where(b => b.TotalReactions <= filter.MaxReactionsCount.Value);
-
-            if (filter.MinCommentsCount.HasValue)
-                query = query.Where(b => b.TotalComments >= filter.MinCommentsCount.Value);
-
-            if (filter.MaxCommentsCount.HasValue)
-                query = query.Where(b => b.TotalComments <= filter.MaxCommentsCount.Value);
-
-            if (filter.ReactionType.HasValue)
-                query = query.Where(b => b.Reactions.Any(r => r.ReactionType == filter.ReactionType.Value));
-
-            // Calculation & applying paged result
-            var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
+        // Get blog by author id
+        public async Task<IReadOnlyList<Blog>> GetByAuthorIdAsync(int authorId)
+            => await _context.Blogs
+                .Where(b => b.UserId == authorId)
                 .ToListAsync();
 
-            return new PagedResultDto<Blog>
-            {
-                Items = items,
-                TotalCount = totalCount
-            };
+        // Add a blog
+        public async Task AddAsync(Blog blog)
+        {
+            _context.Blogs.Add(blog);
+            await _context.SaveChangesAsync();
+        }
+
+        // Update a blog
+        public async Task UpdateAsync(Blog blog)
+        {
+            _context.Blogs.Update(blog);
+            await _context.SaveChangesAsync();
+        }
+
+        // Remove a blog
+        public async Task RemoveAsync(Blog blog)
+        {
+            _context.Blogs.Remove(blog);
+            await _context.SaveChangesAsync();
         }
     }
 }

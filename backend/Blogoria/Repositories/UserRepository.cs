@@ -1,42 +1,48 @@
 ﻿using Blogoria.Data;
-using Blogoria.DTOs.Common;
-using Blogoria.DTOs.UserDTOs;
-using Blogoria.Interfaces.Repositories;
 using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public sealed class UserRepository : GeneralRepository<User>, IUserRepository
+    public class UserRepository : IUserRepository
     {
+        private readonly BlogoriaDbContext _context;
+
         // Constructor
-        public UserRepository(BlogoriaDbContext context) : base(context) { }
+        public UserRepository(BlogoriaDbContext context) => _context = context;
 
-        // Method - Get all users by applying filters
-        public async Task<PagedResultDto<User>> GetFilteredUsersAsync(UserFilterDto filter)
+        // Get user by Id
+        public async Task<User?> GetByIdAsync(int id)
+            => await _context.Users.FindAsync(id);
+
+        // Get user by email
+        public async Task<User?> GetByEmailAsync(string email)
+            => await _context.Users.FirstOrDefaultAsync(u => u.Email.Value == email);
+
+        // Check if a user exists or not by en email
+        public async Task<bool> ExistsByEmailAsync(string email)
+            => await _context.Users.AnyAsync(u => u.Email.Value == email);
+
+        // Add a user
+        public async Task AddAsync(User user)
         {
-            var query = _dbSet.AsQueryable();
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+        }
 
-            // Applying filters
-            if (filter.Username is not null)
-                query = query.Where(u => u.Username == filter.Username);
+        // Update a user
+        public async Task UpdateAsync(User user)
+        {
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
+        }
 
-            if (filter.Email is not null)
-                query = query.Where(u => u.Email.Value == filter.Email);
-
-            // Calculation & applying paged result
-            var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToListAsync();
-
-            return new PagedResultDto<User> 
-            {
-                Items = items,
-                TotalCount = totalCount
-            };
+        // Remove a user
+        public async Task RemoveAsync(User user)
+        {
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
         }
     }
 }

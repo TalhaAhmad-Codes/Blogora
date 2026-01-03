@@ -1,42 +1,57 @@
 ﻿using Blogoria.Data;
-using Blogoria.DTOs.Common;
-using Blogoria.DTOs.UserReactionDTOs;
-using Blogoria.Interfaces.Repositories;
 using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public sealed class UserReactionRepository : GeneralRepository<UserReaction>, IUserReactionRepository
+    public class UserReactionRepository : IUserReactionRepository
     {
+        private readonly BlogoriaDbContext _context;
+
         // Constructor
-        public UserReactionRepository(BlogoriaDbContext context) : base(context) { }
+        public UserReactionRepository(BlogoriaDbContext context) => _context = context;
 
-        // Method - Get user reactions by applying filters
-        public async Task<PagedResultDto<UserReaction>> GetFilteredUserReactionsAsync(UserReactionFilterDto filter)
-        {
-            var query = _dbSet.AsQueryable();
+        // Get a user reaction by id
+        public async Task<UserReaction?> GetByIdAsync(int id)
+            => await _context.UserReactions
+                .Include(r => r.BlogId)     // To let frontend know on which blog the user had reacted
+                .Include(r => r.UserId)     // To let frontend know which user had reacted
+                .FirstOrDefaultAsync(r => r.Id == id);
 
-            // Applying filters
-            if (filter.UserId.HasValue)
-                query = query.Where(r => r.UserId == filter.UserId.Value);
-
-            if (filter.ReactionType.HasValue)
-                query = query.Where(r => r.ReactionType == filter.ReactionType.Value);
-
-            // Calculation & applying paged result
-            var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
+        // Get user reactions by blog id
+        public async Task<IReadOnlyList<UserReaction>> GetByBlogIdAsync(int blogId)
+            => await _context.UserReactions
+                .Include(r => r.UserId)     // To let frontend know which user had reacted
+                .Where(r => r.BlogId == blogId)
                 .ToListAsync();
 
-            return new PagedResultDto<UserReaction>
-            {
-                Items = items,
-                TotalCount = totalCount
-            };
+        // Get user reactions by user id
+        public async Task<IReadOnlyList<UserReaction>> GetByUserIdAsync(int userId)
+            => await _context.UserReactions
+                .Include(r => r.BlogId)     // To let frontend know on which blog user had reacted
+                .Where(r => r.UserId == userId)
+                .ToListAsync();
+
+        // Add a user reaction
+        public async Task AddAsync(UserReaction userReaction)
+        {
+            _context.UserReactions.Add(userReaction);
+            await _context.SaveChangesAsync();
+        }
+
+        // Update a user reaction
+        public async Task UpdateAsync(UserReaction userReaction)
+        {
+            _context.Update(userReaction);
+            await _context.SaveChangesAsync();
+        }
+        
+        // Remove a user reaction
+        public async Task RemoveAsync(UserReaction userReaction)
+        {
+            _context.Remove(userReaction);
+            await _context.SaveChangesAsync();
         }
     }
 }

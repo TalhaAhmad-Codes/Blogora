@@ -17,20 +17,10 @@ namespace Blogoria.Data
         // Method - Do some configurations
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            /* User - Configuration */
-            //modelBuilder.Entity<User>()
-            //    .OwnsOne(u => u.Email, e =>
-            //    {
-            //        e.Property(p => p.Value)
-            //            .HasColumnName("Email")
-            //            .IsRequired();
-            //    });
-
-            //modelBuilder.Entity<User>()
-            //    .HasIndex(u => u.Username)
-            //    .IsUnique();
+            /* User - Configurations */
             modelBuilder.Entity<User>(builder =>
             {
+                // Owns a unique (email) value object
                 builder.OwnsOne(u => u.Email, email =>
                 {
                     email.Property(e => e.Value)
@@ -41,6 +31,7 @@ namespace Blogoria.Data
                          .IsUnique();
                 });
 
+                // Username is required and must be unique
                 builder.Property(u => u.Username)
                        .IsRequired();
 
@@ -48,25 +39,69 @@ namespace Blogoria.Data
                        .IsUnique();
             });
 
-            //modelBuilder.Entity<User>()
-            //    .HasIndex("Email")
-            //    .IsUnique();
-
-            /* Blog - Configuration */
+            /* Blog - Configurations */
+            // Blog → User (One-to-Many)
             modelBuilder.Entity<Blog>()
                 .HasOne(b => b.User)
                 .WithMany()
-                .HasForeignKey(b => b.UserId);
+                .HasForeignKey(b => b.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Blog>()
                 .HasMany(b => b.Comments)
-                .WithOne()
-                .HasForeignKey("BlogId");
+                .WithOne(c => c.Blog)
+                .HasForeignKey(c => c.BlogId);
 
             modelBuilder.Entity<Blog>()
                 .HasMany(b => b.Reactions)
-                .WithOne()
-                .HasForeignKey("BlogId");
+                .WithOne(r => r.Blog)
+                .HasForeignKey(r => r.BlogId);
+
+            // For Performance
+            modelBuilder.Entity<Blog>()
+                .HasIndex(b => b.UserId);
+
+            /* User Reaction - Configurations */
+            modelBuilder.Entity<UserReaction>(builder =>
+            {
+                // User → Reactions (One-to-Many)
+                builder.HasOne(r => r.User)
+                       .WithMany(u => u.Reactions)
+                       .HasForeignKey(r => r.UserId)
+                       .OnDelete(DeleteBehavior.Restrict);
+
+                // Blog → Reactions (One-to-Many)
+                builder.HasOne(r => r.Blog)
+                       .WithMany(b => b.Reactions)
+                       .HasForeignKey(r => r.BlogId)
+                       .OnDelete(DeleteBehavior.Cascade);
+
+                // One reaction per user per blog
+                builder.HasIndex(r => new { r.UserId, r.BlogId })
+                       .IsUnique();
+
+                // Performance
+                builder.HasIndex(r => r.BlogId);
+            });
+
+            /* User Comment - Configurations */
+            modelBuilder.Entity<UserComment>(builder =>
+            {
+                // User → Comment (One-to-Many)
+                builder.HasOne(c => c.User)
+                       .WithMany(u => u.Comments)
+                       .HasForeignKey(c => c.UserId)
+                       .OnDelete(DeleteBehavior.Restrict);
+
+                // Blog → Comment (One-to-Many)
+                builder.HasOne(c => c.Blog)
+                       .WithMany(b => b.Comments)
+                       .HasForeignKey(c => c.BlogId)
+                       .OnDelete(DeleteBehavior.Cascade);
+
+                // Performance
+                builder.HasIndex(c => c.BlogId);
+            });
 
             base.OnModelCreating(modelBuilder);
         }

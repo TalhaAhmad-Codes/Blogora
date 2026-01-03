@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public class UserRepository : IUserRepository
+    public sealed class UserRepository : IUserRepository
     {
         private readonly BlogoriaDbContext _context;
 
@@ -23,6 +23,10 @@ namespace Blogoria.Repositories
         // Check if a user exists or not by en email
         public async Task<bool> ExistsByEmailAsync(string email)
             => await _context.Users.AnyAsync(u => u.Email.Value == email);
+
+        // Get all users
+        public async Task<IEnumerable<User>> GetAllAsync()
+            => await _context.Users.ToListAsync();
 
         // Add a user
         public async Task AddAsync(User user)

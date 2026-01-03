@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public class BlogRepository : IBlogRepository
+    public sealed class BlogRepository : IBlogRepository
     {
         private readonly BlogoriaDbContext _context;
 
@@ -24,10 +24,14 @@ namespace Blogoria.Repositories
                 .Where(b => b.UserId == authorId)
                 .ToListAsync();
 
+        // Get all blogs
+        public async Task<IEnumerable<Blog>> GetAllAsync()
+            => await _context.Blogs.ToListAsync();
+
         // Add a blog
         public async Task AddAsync(Blog blog)
         {
-            _context.Blogs.Add(blog);
+            _context.Blogs.Add(blog);   // Causing an error!
             await _context.SaveChangesAsync();
         }
 

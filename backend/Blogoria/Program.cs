@@ -1,6 +1,8 @@
 using Blogoria.Data;
 using Blogoria.Repositories;
 using Blogoria.Repositories.Interfaces;
+using Blogoria.Services;
+using Blogoria.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria
@@ -21,6 +23,10 @@ namespace Blogoria
             builder.Services.AddScoped<IUserCommentRepository, UserCommentRepository>();
             builder.Services.AddScoped<IUserReactionRepository, UserReactionRepository>();
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
+
+            // Add services
+            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IBlogService, BlogService>();
 
             // Add services to the container.
             builder.Services.AddControllers();

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public class UserReactionRepository : IUserReactionRepository
+    public sealed class UserReactionRepository : IUserReactionRepository
     {
         private readonly BlogoriaDbContext _context;
 

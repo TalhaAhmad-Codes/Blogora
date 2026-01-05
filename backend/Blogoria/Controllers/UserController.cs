@@ -30,6 +30,13 @@ namespace Blogoria.Controllers
             return user is null ? NotFound() : Ok(user);
         }
 
+        [HttpGet("{email}")]
+        public async Task<IActionResult> GetByEmail(string email)
+        {
+            var user = await _userService.GetByEmailAsync(email);
+            return user is null ? NotFound() : Ok(user);
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetPaged([FromQuery] PagedRequest request)
         {

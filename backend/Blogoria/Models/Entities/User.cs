@@ -11,13 +11,14 @@ namespace Blogoria.Models.Entities
         public Email Email { get; private set; }
         public string Username { get; private set; }
         public string PasswordHash { get; private set; }
+        
+        // Foriegn Attributes
         private readonly List<UserReaction> _reactions = new();
         private readonly List<UserComment> _comments = new();
         
         // Navigation properties
         public IReadOnlyCollection<UserReaction> Reactions => _reactions;
         public IReadOnlyCollection<UserComment> Comments => _comments;
-
 
         // Constructors
         private User() { }

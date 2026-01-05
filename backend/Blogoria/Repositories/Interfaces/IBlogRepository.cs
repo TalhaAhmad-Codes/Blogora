@@ -2,14 +2,8 @@
 
 namespace Blogoria.Repositories.Interfaces
 {
-    public interface IBlogRepository
+    public interface IBlogRepository : IGeneralRepository<Blog>
     {
-        Task<Blog?> GetByIdAsync(int id);
         Task<IReadOnlyList<Blog>> GetByAuthorIdAsync(int authorId);
-
-        Task<IEnumerable<Blog>> GetAllAsync();
-        Task AddAsync(Blog blog);
-        Task UpdateAsync(Blog blog);
-        Task RemoveAsync(Blog blog);
     }
 }

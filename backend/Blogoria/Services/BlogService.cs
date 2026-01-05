@@ -18,7 +18,7 @@ namespace Blogoria.Services
         public async Task<BlogResponse> CreateAsync(int authorId, CreateBlogRequest request)
         {
             var blog = Blog.Create(
-                featuredImage: request.FeaturedImage,
+                featuredImage: null,
                 title: request.Title,
                 description: request.Description,
                 userId: authorId

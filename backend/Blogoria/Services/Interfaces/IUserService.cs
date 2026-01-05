@@ -7,6 +7,8 @@ namespace Blogoria.Services.Interfaces
     {
         Task<UserResponse> CreateAsync(CreateUserRequest request);
         Task<UserResponse?> GetByIdAsync(int id);
+        Task<UserResponse?> GetByEmailAsync(string email);
+        Task<bool> ExistsByEmailAsync(string email);
         Task<PagedResponse<UserResponse>> GetPagedAsync(PagedRequest request);
     }
 }

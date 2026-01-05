@@ -2,7 +2,6 @@
 {
     // To create a new blog
     public sealed record CreateBlogRequest(
-        byte[]? FeaturedImage,
         string Title,
         string Description
     );

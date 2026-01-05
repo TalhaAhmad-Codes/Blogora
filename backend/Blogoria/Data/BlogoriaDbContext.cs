@@ -99,6 +99,9 @@ namespace Blogoria.Data
                        .HasForeignKey(c => c.BlogId)
                        .OnDelete(DeleteBehavior.Cascade);
 
+                // Order
+                builder.HasIndex(c => new { c.BlogId, c.CreatedAt });
+
                 // Performance
                 builder.HasIndex(c => c.BlogId);
             });

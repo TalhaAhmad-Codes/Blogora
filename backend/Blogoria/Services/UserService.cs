@@ -40,6 +40,15 @@ namespace Blogoria.Services
             return user is null ? null : MapToResponse(user);
         }
 
+        public async Task<UserResponse?> GetByEmailAsync(string email)
+        {
+            var user = await _userRepository.GetByEmailAsync(email);
+            return user is null ? null : MapToResponse(user);
+        }
+
+        public async Task<bool> ExistsByEmailAsync(string email)
+            => await _userRepository.ExistsByEmailAsync(email);
+
         public async Task<PagedResponse<UserResponse>> GetPagedAsync(PagedRequest request)
         {
             // NOTE: This is intentionally service-driven pagination

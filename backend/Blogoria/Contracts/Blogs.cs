@@ -13,6 +13,15 @@
         string Description
     );
 
+    // To get filtered blog
+    public sealed record FilterBlogRequest(
+        int? AuthorId,
+        int? MinReactions,
+        int? MaxReactions,
+        int? MinComments,
+        int? MaxComments
+    );
+
     // To get blog
     public sealed record BlogResponse(
         int Id,

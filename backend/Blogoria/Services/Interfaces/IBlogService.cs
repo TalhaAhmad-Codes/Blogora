@@ -7,6 +7,6 @@ namespace Blogoria.Services.Interfaces
     {
         Task<BlogResponse> CreateAsync(int authorId, CreateBlogRequest request);
         Task<BlogResponse?> GetByIdAsync(int id);
-        Task<PagedResponse<BlogResponse>> GetPagedAsync(PagedRequest request);
+        Task<PagedResponse<BlogResponse>> GetFilteredAsync(FilterBlogRequest filterRequest, PagedRequest pagedRequest);
     }
 }

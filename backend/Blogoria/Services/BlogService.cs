@@ -35,12 +35,12 @@ namespace Blogoria.Services
             return blog is null ? null : MapToResponse(blog);
         }
 
-        public async Task<PagedResponse<BlogResponse>> GetPagedAsync(PagedRequest request)
+        public async Task<PagedResponse<BlogResponse>> GetFilteredAsync(FilterBlogRequest filterRequest, PagedRequest pagedRequest)
         {
-            var page = request.Page <= 0 ? 1 : request.Page;
-            var pageSize = request.PageSize <= 0 ? 10 : request.PageSize;
+            var page = pagedRequest.Page <= 0 ? 1 : pagedRequest.Page;
+            var pageSize = pagedRequest.PageSize <= 0 ? 10 : pagedRequest.PageSize;
 
-            var blogs = await _blogRepository.GetAllAsync();
+            var blogs = await _blogRepository.GetFilteredAsync(filterRequest);
             var total = blogs.Count();
 
             var items = blogs

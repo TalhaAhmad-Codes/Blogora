@@ -31,11 +31,11 @@ namespace Blogoria.Controllers
             var blog = await _blogService.GetByIdAsync(id);
             return blog is null ? NotFound() : Ok(blog);
         }
-
+        
         [HttpGet]
-        public async Task<IActionResult> GetPaged([FromQuery] PagedRequest request)
+        public async Task<IActionResult> GetFiltered(FilterBlogRequest filterRequest, [FromQuery] PagedRequest pagedRequest)
         {
-            var result = await _blogService.GetPagedAsync(request);
+            var result = await _blogService.GetFilteredAsync(filterRequest, pagedRequest);
             return Ok(result);
         }
     }

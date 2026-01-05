@@ -54,8 +54,11 @@ namespace Blogoria.Models.Entities
         }
 
         // Update email address
-        public void UpdateEmail(string email)
+        public void UpdateEmail(string password, string email)
         {
+            if (!PasswordHasher.Verify(password, PasswordHash))
+                throw new InvalidCredentialsException("Password didn't match.");
+
             Email = Email.Create(email);
 
             MarkUpdate();

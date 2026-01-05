@@ -9,6 +9,10 @@ namespace Blogoria.Services.Interfaces
         Task<UserResponse?> GetByIdAsync(int id);
         Task<UserResponse?> GetByEmailAsync(string email);
         Task<bool> ExistsByEmailAsync(string email);
+        Task<bool> UpdateUsernameAsync(int userId, UpdateUsernameRequest request);
+        Task<bool> UpdateEmailAsync(int userId, UpdateEmailRequest request);
+        Task<bool> UpdatePasswordAsync(int userId, UpdatePasswordRequest request);
+        Task<bool> RemoveAsync(int userId);
         Task<PagedResponse<UserResponse>> GetPagedAsync(PagedRequest request);
     }
 }

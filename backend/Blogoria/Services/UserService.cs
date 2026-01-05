@@ -74,6 +74,66 @@ namespace Blogoria.Services
             );
         }
 
+        public async Task<bool> UpdateUsernameAsync(int userId, UpdateUsernameRequest request)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user is null)
+                return false;
+
+            user.UpdateUsername(request.Username);
+
+            await _userRepository.UpdateAsync(user);
+            return true;
+        }
+
+        public async Task<bool> UpdateEmailAsync(int userId, UpdateEmailRequest request)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user is null)
+                return false;
+
+            try
+            {
+                user.UpdateEmail(request.Password, request.Email);
+            }
+            catch (InvalidCredentialsException)
+            {
+                return false;
+            }
+
+            await _userRepository.UpdateAsync(user);
+            return true;
+        }
+        
+        public async Task<bool> UpdatePasswordAsync(int userId, UpdatePasswordRequest request)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user is null)
+                return false;
+
+            try
+            {
+                user.UpdatePassword(request.OldPassword, request.NewPassword);
+            }
+            catch (InvalidCredentialsException)
+            {
+                return false;
+            }
+
+            await _userRepository.UpdateAsync(user);
+            return true;
+        }
+
+        public async Task<bool> RemoveAsync(int userId)
+        {
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user is null)
+                return false;
+
+            await _userRepository.RemoveAsync(user);
+            return true;
+        }
+
         private static UserResponse MapToResponse(User user)
             => new(
                 Id: user.Id,

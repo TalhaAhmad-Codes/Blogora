@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Blogoria.Controllers
 {
     [ApiController]
-    [Route("api/users")]
+    [Route("/api/users")]
     public sealed class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -37,11 +37,42 @@ namespace Blogoria.Controllers
             return user is null ? NotFound() : Ok(user);
         }
 
+        [HttpPut]
+        [Route("/api/users/update/username")]
+        public async Task<IActionResult> UpdateUsername(int id, UpdateUsernameRequest request)
+        {
+            bool result = await _userService.UpdateUsernameAsync(id, request);
+            return result ? Ok(result) : NotFound();
+        }
+
+        [HttpPut]
+        [Route("/api/users/update/email")]
+        public async Task<IActionResult> UpdateEmail(int id, UpdateEmailRequest request)
+        {
+            bool result = await _userService.UpdateEmailAsync(id, request);
+            return result ? Ok(result) : NotFound();
+        }
+
+        [HttpPut]
+        [Route("/api/users/update/password")]
+        public async Task<IActionResult> UpdatePassword(int id, UpdatePasswordRequest request)
+        {
+            bool result = await _userService.UpdatePasswordAsync(id, request);
+            return result ? Ok(result) : NotFound();
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetPaged([FromQuery] PagedRequest request)
         {
             var result = await _userService.GetPagedAsync(request);
             return Ok(result);
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> Remove(int id)
+        {
+            var result = await _userService.RemoveAsync(id);
+            return result ? Ok(result) : NotFound();
         }
     }
 }

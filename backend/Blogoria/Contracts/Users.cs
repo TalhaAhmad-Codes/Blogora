@@ -7,10 +7,19 @@
         string Password
     );
 
-    // To Update an existing user data
-    public sealed record UpdateUserRequest(
-        string Username,
+    // To update an existing user's name
+    public sealed record UpdateUsernameRequest(
+        string Username
+    );
+
+    // To update an existing user's email
+    public sealed record UpdateEmailRequest(
         string Email,
+        string Password
+    );
+
+    // To update an existing user's password
+    public sealed record UpdatePasswordRequest(
         string OldPassword,
         string NewPassword
     );

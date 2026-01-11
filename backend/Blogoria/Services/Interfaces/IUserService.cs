@@ -1,18 +1,19 @@
-﻿using Blogoria.Contracts.Common;
-using Blogoria.Contracts.Users;
+﻿
+using Blogoria.DTOs.Common;
+using Blogoria.DTOs.UserDTOs;
+using Blogoria.DTOs.UserDTOs.UserUpdateDtos;
 
 namespace Blogoria.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserResponse> CreateAsync(CreateUserRequest request);
-        Task<UserResponse?> GetByIdAsync(int id);
-        Task<UserResponse?> GetByEmailAsync(string email);
-        Task<bool> ExistsByEmailAsync(string email);
-        Task<bool> UpdateUsernameAsync(int userId, UpdateUsernameRequest request);
-        Task<bool> UpdateEmailAsync(int userId, UpdateEmailRequest request);
-        Task<bool> UpdatePasswordAsync(int userId, UpdatePasswordRequest request);
-        Task<bool> RemoveAsync(int userId);
-        Task<PagedResponse<UserResponse>> GetPagedAsync(PagedRequest request);
+        Task<UserDto> CreateAsync(UserDto userDto);
+        Task<PagedResultDto<UserDto>> GetAllAsync(UserFilterDto filterDto);
+        Task<UserDto?> GetByIdAsync(int id);
+        Task<bool> RemoveAsync(int id);
+        Task<bool> UpdateProfilePicAsync(UserUpdateProfilePicDto dto);
+        Task<bool> UpdateUsernameAsync(UserUpdateUsernameDto dto);
+        Task<bool> UpdateEmailAsync(UserUpdateEmailDto dto);
+        Task<bool> UpdatePasswordAsync(UserUpdatePasswordDto dto);
     }
 }

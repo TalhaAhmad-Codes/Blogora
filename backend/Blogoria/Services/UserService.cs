@@ -1,5 +1,7 @@
-﻿using Blogoria.Contracts.Common;
-using Blogoria.Contracts.Users;
+﻿using Blogoria.DTOs.Common;
+using Blogoria.DTOs.UserDTOs;
+using Blogoria.DTOs.UserDTOs.UserUpdateDtos;
+using Blogoria.Mappers;
 using Blogoria.Misc.Exceptions;
 using Blogoria.Models.Entities;
 using Blogoria.Models.ValueObjects;
@@ -10,137 +12,105 @@ namespace Blogoria.Services
 {
     public sealed class UserService : IUserService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IUserRepository _repository;
 
         public UserService(IUserRepository userRepository)
         {
-            _userRepository = userRepository;
+            _repository = userRepository;
         }
 
-        public async Task<UserResponse> CreateAsync(CreateUserRequest request)
+        public async Task<UserDto> CreateAsync(UserDto userDto)
         {
-            if (await _userRepository.ExistsByEmailAsync(request.Email))
-                throw new EmailAlreadyExistsException("Email already in use.");
+            // Esures that email must be new and not already registered
+            if (await _repository.ExistsByEmailAsync(userDto.Email))
+                throw new EmailAlreadyExistsException("A user already exists with that email.");
 
             var user = User.Create(
-                profilePic: null,
-                email: Email.Create(request.Email),
-                username: request.Username,
-                password: request.Password
+                profilePic: userDto.ProfilePic,
+                email: userDto.Email,
+                username: userDto.Username,
+                password: userDto.Password
             );
 
-            await _userRepository.AddAsync(user);
+            await _repository.AddAsync(user);
 
-            return MapToResponse(user);
+            return userDto;
         }
 
-        public async Task<UserResponse?> GetByIdAsync(int id)
+        public async Task<PagedResultDto<UserDto>> GetAllAsync(UserFilterDto filterDto)
         {
-            var user = await _userRepository.GetByIdAsync(id);
-            return user is null ? null : MapToResponse(user);
+            var result = await _repository.GetAllAsync(filterDto);
+
+            return new PagedResultDto<UserDto>
+            {
+                Items = result.Items.Select(UserMapper.ToDto).ToList(),
+                TotalCount = result.TotalCount
+            };
         }
 
-        public async Task<UserResponse?> GetByEmailAsync(string email)
+        public async Task<UserDto?> GetByIdAsync(int id)
         {
-            var user = await _userRepository.GetByEmailAsync(email);
-            return user is null ? null : MapToResponse(user);
+            var user = await _repository.GetByIdAsync(id);
+
+            return (user is null) ? null : UserMapper.ToDto(user);
         }
 
-        public async Task<bool> ExistsByEmailAsync(string email)
-            => await _userRepository.ExistsByEmailAsync(email);
-
-        public async Task<PagedResponse<UserResponse>> GetPagedAsync(PagedRequest request)
+        public async Task<bool> RemoveAsync(int id)
         {
-            // NOTE: This is intentionally service-driven pagination
-            // In high-scale apps, this would move to a query repository
-            var page = request.Page <= 0 ? 1 : request.Page;
-            var pageSize = request.PageSize <= 0 ? 10 : request.PageSize;
+            var user = await _repository.GetByIdAsync(id);
 
-            // naive approach (fine for portfolio)
-            var users = await _userRepository.GetAllAsync();
-            var total = users.Count();
+            if (user is null) return false;
 
-            var items = users
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(MapToResponse)
-                .ToList();
-
-            return new PagedResponse<UserResponse>(
-                items,
-                total,
-                page,
-                pageSize
-            );
-        }
-
-        public async Task<bool> UpdateUsernameAsync(int userId, UpdateUsernameRequest request)
-        {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user is null)
-                return false;
-
-            user.UpdateUsername(request.Username);
-
-            await _userRepository.UpdateAsync(user);
+            await _repository.RemoveAsync(user);
             return true;
         }
 
-        public async Task<bool> UpdateEmailAsync(int userId, UpdateEmailRequest request)
+        public async Task<bool> UpdateEmailAsync(UserUpdateEmailDto dto)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user is null)
-                return false;
+            var user = await _repository.GetByIdAsync(dto.Id);
 
-            try
-            {
-                user.UpdateEmail(request.Password, request.Email);
-            }
-            catch (InvalidCredentialsException)
-            {
-                return false;
-            }
-
-            await _userRepository.UpdateAsync(user);
-            return true;
-        }
-        
-        public async Task<bool> UpdatePasswordAsync(int userId, UpdatePasswordRequest request)
-        {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user is null)
-                return false;
-
-            try
-            {
-                user.UpdatePassword(request.OldPassword, request.NewPassword);
-            }
-            catch (InvalidCredentialsException)
-            {
-                return false;
-            }
-
-            await _userRepository.UpdateAsync(user);
+            if (user is null) return false;
+                
+            user.UpdateEmail(dto.Password, dto.Email);
+            await _repository.UpdateAsync(user);
             return true;
         }
 
-        public async Task<bool> RemoveAsync(int userId)
+        public async Task<bool> UpdatePasswordAsync(UserUpdatePasswordDto dto)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user is null)
-                return false;
+            var user = await _repository.GetByIdAsync(dto.Id);
 
-            await _userRepository.RemoveAsync(user);
+            if (user is null) return false;
+
+            // User must confirm new password
+            if (dto.NewPassword != dto.ConfirmPassword)
+                throw new InvalidCredentialsException("Password didn't match.");
+
+            user.UpdatePassword(dto.OldPassword, dto.NewPassword);
+            await _repository.UpdateAsync(user);
             return true;
         }
 
-        private static UserResponse MapToResponse(User user)
-            => new(
-                Id: user.Id,
-                Username: user.Username,
-                Email: user.Email.Value,
-                CreatedAt: user.CreatedAt,
-                UpdatedAt: user.UpdatedAt
-            );
+        public async Task<bool> UpdateProfilePicAsync(UserUpdateProfilePicDto dto)
+        {
+            var user = await _repository.GetByIdAsync(dto.Id);
+
+            if (user is null) return false;
+
+            user.UpdateProfilePic(dto.ProfilepPic);
+            await _repository.UpdateAsync(user);
+            return true;
+        }
+
+        public async Task<bool> UpdateUsernameAsync(UserUpdateUsernameDto dto)
+        {
+            var user = await _repository.GetByIdAsync(dto.Id);
+
+            if (user is null) return false;
+
+            user.UpdateUsername(dto.Username);
+            await _repository.UpdateAsync(user);
+            return true;
+        }
     }
 }

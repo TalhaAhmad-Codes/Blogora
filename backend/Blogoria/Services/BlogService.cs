@@ -1,5 +1,6 @@
-﻿using Blogoria.Contracts.Blogs;
-using Blogoria.Contracts.Common;
+﻿using Blogoria.DTOs.BlogDTOs;
+using Blogoria.DTOs.BlogDTOs.BlogUpdateDtos;
+using Blogoria.DTOs.Common;
 using Blogoria.Models.Entities;
 using Blogoria.Repositories.Interfaces;
 using Blogoria.Services.Interfaces;
@@ -8,65 +9,54 @@ namespace Blogoria.Services
 {
     public sealed class BlogService : IBlogService
     {
-        private readonly IBlogRepository _blogRepository;
+        private readonly IBlogRepository _repository;
 
         public BlogService(IBlogRepository blogRepository)
         {
-            _blogRepository = blogRepository;
+            _repository = blogRepository;
         }
 
-        public async Task<BlogResponse> CreateAsync(int authorId, CreateBlogRequest request)
+        public async Task<BlogDto> CreateAsync(BlogDto blogDto)
         {
             var blog = Blog.Create(
-                featuredImage: null,
-                title: request.Title,
-                description: request.Description,
-                userId: authorId
+                featuredImage: blogDto.FeaturedImage,
+                title: blogDto.Title,
+                description: blogDto.Description,
+                userId: blogDto.AuthorId
             );
 
-            await _blogRepository.AddAsync(blog);
-
-            return MapToResponse(blog);
+            await _repository.AddAsync(blog);
+            return blogDto;
         }
 
-        public async Task<BlogResponse?> GetByIdAsync(int id)
+        public Task<PagedResultDto<BlogDto>> GetAllAsync(BlogFilterDto filterDto)
         {
-            var blog = await _blogRepository.GetByIdAsync(id);
-            return blog is null ? null : MapToResponse(blog);
+            throw new NotImplementedException();
         }
 
-        public async Task<PagedResponse<BlogResponse>> GetFilteredAsync(FilterBlogRequest filterRequest, PagedRequest pagedRequest)
+        public Task<BlogDto?> GetByIdAsync(int id)
         {
-            var page = pagedRequest.Page <= 0 ? 1 : pagedRequest.Page;
-            var pageSize = pagedRequest.PageSize <= 0 ? 10 : pagedRequest.PageSize;
-
-            var blogs = await _blogRepository.GetFilteredAsync(filterRequest);
-            var total = blogs.Count();
-
-            var items = blogs
-                .OrderByDescending(b => b.CreatedAt)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(MapToResponse)
-                .ToList();
-
-            return new PagedResponse<BlogResponse>(
-                items,
-                total,
-                page,
-                pageSize
-            );
+            throw new NotImplementedException();
         }
 
-        private static BlogResponse MapToResponse(Blog blog)
-            => new(
-                Id: blog.Id,
-                FeaturedImage: blog.FeaturedImage,
-                Title: blog.Title,
-                Description: blog.Description,
-                AuthorId: blog.UserId,
-                CreatedAt: blog.CreatedAt,
-                UpdatedAt: blog.UpdatedAt
-            );
+        public Task<bool> RemoveAsync(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateDescriptionAsync(BlogUpdateDescriptionDto dto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateFeaturedImageAsync(BlogUpdateFeaturedImageDto dto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> UpdateTitleAsync(BlogUpdateTitleDto dto)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

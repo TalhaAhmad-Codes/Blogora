@@ -19,10 +19,6 @@ namespace Blogoria.Repositories
         public async Task<T?> GetByIdAsync(int id)
             => await _set.FindAsync(id);
 
-        // Get all entities
-        public async Task<IEnumerable<T>> GetAllAsync()
-            => await _set.ToListAsync();
-
         // Add an entity
         public async Task AddAsync(T entity)
         {
@@ -43,5 +39,12 @@ namespace Blogoria.Repositories
             _set.Remove(entity);
             await _context.SaveChangesAsync();
         }
+
+        // Get paged result items
+        protected async Task<List<T>> GetPagedResultItemsAsync(IQueryable<T> query, int pageNumber, int pageSize)
+            => await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
     }
 }

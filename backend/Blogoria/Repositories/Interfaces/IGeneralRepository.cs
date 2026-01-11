@@ -3,9 +3,8 @@
     public interface IGeneralRepository<T> where T : class
     {
         Task<T?> GetByIdAsync(int id);
-        Task<IEnumerable<T>> GetAllAsync();
-        Task AddAsync(T user);
-        Task UpdateAsync(T user);
-        Task RemoveAsync(T user);
+        Task AddAsync(T entity);
+        Task UpdateAsync(T entity);
+        Task RemoveAsync(T entity);
     }
 }

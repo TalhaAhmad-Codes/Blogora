@@ -23,7 +23,7 @@ namespace Blogoria.Models.Entities
         // Constructors
         private User() { }
 
-        private User(byte[]? profilePic, Email email, string username, string password)
+        private User(byte[]? profilePic, string email, string username, string password)
         {
             // Guard against invalid values
             Guard.AgainstNullString(username, nameof(Username));
@@ -32,13 +32,13 @@ namespace Blogoria.Models.Entities
 
             // Assigning values
             ProfilePic = profilePic;
-            Email = email;
+            Email = Email.Create(email);
             Username = username;
             PasswordHash = PasswordHasher.Hash(password);
         }
 
         // Method - Create a new user
-        public static User Create(byte[]? profilePic, Email email, string username, string password)
+        public static User Create(byte[]? profilePic, string email, string username, string password)
             => new(profilePic, email, username, password);
 
         /*******************************************/
@@ -46,7 +46,7 @@ namespace Blogoria.Models.Entities
         /*******************************************/
 
         // Update profile pic
-        public void UpdateProfilePic(byte[]? profilePic = null)
+        public void UpdateProfilePic(byte[]? profilePic)
         {
             ProfilePic = profilePic;
             

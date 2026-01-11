@@ -1,10 +1,11 @@
-﻿using Blogoria.Models.Entities;
+﻿using Blogoria.DTOs.Common;
+using Blogoria.DTOs.UserCommentDTOs;
+using Blogoria.Models.Entities;
 
 namespace Blogoria.Repositories.Interfaces
 {
     public interface IUserCommentRepository : IGeneralRepository<UserComment>
     {
-        Task<IReadOnlyList<UserComment>> GetByBlogIdAsync(int blogId);
-        Task<IReadOnlyList<UserComment>> GetByUserIdAsync(int userId);
+        Task<PagedResultDto<UserComment>> GetAllAsync(UserCommentFilterDto filterDto);
     }
 }

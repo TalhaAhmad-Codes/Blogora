@@ -4,7 +4,6 @@ using Blogoria.DTOs.UserDTOs.UserUpdateDtos;
 using Blogoria.Mappers;
 using Blogoria.Misc.Exceptions;
 using Blogoria.Models.Entities;
-using Blogoria.Models.ValueObjects;
 using Blogoria.Repositories.Interfaces;
 using Blogoria.Services.Interfaces;
 

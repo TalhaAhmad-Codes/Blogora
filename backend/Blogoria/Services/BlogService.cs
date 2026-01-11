@@ -1,6 +1,7 @@
 ﻿using Blogoria.DTOs.BlogDTOs;
 using Blogoria.DTOs.BlogDTOs.BlogUpdateDtos;
 using Blogoria.DTOs.Common;
+using Blogoria.Mappers;
 using Blogoria.Models.Entities;
 using Blogoria.Repositories.Interfaces;
 using Blogoria.Services.Interfaces;
@@ -29,34 +30,65 @@ namespace Blogoria.Services
             return blogDto;
         }
 
-        public Task<PagedResultDto<BlogDto>> GetAllAsync(BlogFilterDto filterDto)
+        public async Task<PagedResultDto<BlogDto>> GetAllAsync(BlogFilterDto filterDto)
         {
-            throw new NotImplementedException();
+            var result = await _repository.GetAllAsync(filterDto);
+
+            return new PagedResultDto<BlogDto>
+            {
+                Items = result.Items.Select(BlogMapper.ToDto).ToList(),
+                TotalCount = result.TotalCount
+            };
         }
 
-        public Task<BlogDto?> GetByIdAsync(int id)
+        public async Task<BlogDto?> GetByIdAsync(int id)
         {
-            throw new NotImplementedException();
+            var blog = await _repository.GetByIdAsync(id);
+
+            return (blog is null) ? null : BlogMapper.ToDto(blog);
         }
 
-        public Task<bool> RemoveAsync(int id)
+        public async Task<bool> RemoveAsync(int id)
         {
-            throw new NotImplementedException();
+            var blog = await _repository.GetByIdAsync(id);
+
+            if (blog is null) return false;
+
+            await _repository.RemoveAsync(blog);
+            return true;
         }
 
-        public Task<bool> UpdateDescriptionAsync(BlogUpdateDescriptionDto dto)
+        public async Task<bool> UpdateDescriptionAsync(BlogUpdateDescriptionDto dto)
         {
-            throw new NotImplementedException();
+            var blog = await _repository.GetByIdAsync(dto.Id);
+
+            if (blog is null) return false;
+
+            blog.UpdateDescription(dto.Description);
+            await _repository.UpdateAsync(blog);
+            return true;
         }
 
-        public Task<bool> UpdateFeaturedImageAsync(BlogUpdateFeaturedImageDto dto)
+        public async Task<bool> UpdateFeaturedImageAsync(BlogUpdateFeaturedImageDto dto)
         {
-            throw new NotImplementedException();
+            var blog = await _repository.GetByIdAsync(dto.Id);
+
+            if (blog is null) return false;
+
+            blog.UpdateFeaturedImage(blog.FeaturedImage);
+            await _repository.UpdateAsync(blog);
+            return true;
         }
 
-        public Task<bool> UpdateTitleAsync(BlogUpdateTitleDto dto)
+        public async Task<bool> UpdateTitleAsync(BlogUpdateTitleDto dto)
         {
-            throw new NotImplementedException();
+            var blog = await _repository.GetByIdAsync(dto.Id);
+
+            if (blog is null) return false;
+
+            blog.UpdateTitle(dto.Title);
+            await _repository.UpdateAsync(blog);
+            return true;
         }
     }
 }

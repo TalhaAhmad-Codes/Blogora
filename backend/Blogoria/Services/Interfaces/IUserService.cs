@@ -7,7 +7,7 @@ namespace Blogoria.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDto> CreateAsync(UserDto userDto);
+        Task<UserDto> CreateAsync(CreateUserDto userDto);
         Task<PagedResultDto<UserDto>> GetAllAsync(UserFilterDto filterDto);
         Task<UserDto?> GetByIdAsync(int id);
         Task<bool> RemoveAsync(int id);

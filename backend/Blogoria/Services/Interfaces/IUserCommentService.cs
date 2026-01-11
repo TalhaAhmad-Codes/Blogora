@@ -6,7 +6,7 @@ namespace Blogoria.Services.Interfaces
 {
     public interface IUserCommentService
     {
-        Task<UserCommentDto> AddUserCommentAsync(UserCommentDto userCommentDto);
+        Task<UserCommentDto> AddUserCommentAsync(AddUserCommentDto userCommentDto);
         Task<PagedResultDto<UserCommentDto>> GetAllAsync(UserCommentFilterDto filterDto);
         Task<UserCommentDto?> GetByIdAsync(int id);
         Task<bool> RemoveAsync(int id);

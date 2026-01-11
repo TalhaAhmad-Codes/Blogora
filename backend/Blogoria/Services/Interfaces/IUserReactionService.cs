@@ -6,7 +6,7 @@ namespace Blogoria.Services.Interfaces
 {
     public interface IUserReactionService
     {
-        Task<UserReactionDto> AddUserReaction(UserReactionDto userReactionDto);
+        Task<UserReactionDto> AddUserReaction(AddUserReactionDto userReactionDto);
         Task<PagedResultDto<UserReactionDto>> GetAllAsync(UserReactionFilterDto filterDto);
         Task<UserReactionDto?> GetByIdAsync(int id);
         Task<bool> RemoveAsync(int id);

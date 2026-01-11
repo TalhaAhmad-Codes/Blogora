@@ -6,7 +6,7 @@ namespace Blogoria.Services.Interfaces
 {
     public interface IBlogService
     {
-        Task<BlogDto> CreateAsync(BlogDto blogDto);
+        Task<BlogDto> CreateAsync(CreateBlogDto blogDto);
         Task<BlogDto?> GetByIdAsync(int id);
         Task<PagedResultDto<BlogDto>> GetAllAsync(BlogFilterDto filterDto);
         Task<bool> RemoveAsync(int id);

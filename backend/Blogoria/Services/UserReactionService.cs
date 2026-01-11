@@ -17,7 +17,7 @@ namespace Blogoria.Services
             _repository = repository; 
         }
 
-        public async Task<UserReactionDto> AddUserReaction(UserReactionDto userReactionDto)
+        public async Task<UserReactionDto> AddUserReaction(AddUserReactionDto userReactionDto)
         {
             var userReaction = UserReaction.Create(
                 userId: userReactionDto.UserId,
@@ -26,7 +26,7 @@ namespace Blogoria.Services
             );
 
             await _repository.AddAsync(userReaction);
-            return userReactionDto;
+            return UserReactionMapper.ToDto(userReaction);
         }
 
         public async Task<PagedResultDto<UserReactionDto>> GetAllAsync(UserReactionFilterDto filterDto)

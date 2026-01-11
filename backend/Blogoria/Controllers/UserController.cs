@@ -18,7 +18,7 @@ namespace Blogoria.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(UserDto user)
+        public async Task<IActionResult> CreateAsync(CreateUserDto user)
         {
             try
             {
@@ -40,7 +40,7 @@ namespace Blogoria.Controllers
 
         [HttpPut]
         [Route("/api/users/update/username")]
-        public async Task<IActionResult> UpdateUsername(UserUpdateUsernameDto dto)
+        public async Task<IActionResult> UpdateUsernameAsync(UserUpdateUsernameDto dto)
         {
             try
             {
@@ -55,7 +55,7 @@ namespace Blogoria.Controllers
 
         [HttpPut]
         [Route("/api/users/update/email")]
-        public async Task<IActionResult> UpdateEmail(UserUpdateEmailDto dto)
+        public async Task<IActionResult> UpdateEmailAsync(UserUpdateEmailDto dto)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace Blogoria.Controllers
 
         [HttpPut]
         [Route("/api/users/update/password")]
-        public async Task<IActionResult> UpdatePassword(UserUpdatePasswordDto dto)
+        public async Task<IActionResult> UpdatePasswordAsync(UserUpdatePasswordDto dto)
         {
             try
             {
@@ -85,21 +85,21 @@ namespace Blogoria.Controllers
 
         [HttpPut]
         [Route("/api/users/update/profile-pic")]
-        public async Task<IActionResult> UpdateProfilePic(UserUpdateProfilePicDto dto)
+        public async Task<IActionResult> UpdateProfilePicAsync(UserUpdateProfilePicDto dto)
         {
             bool result = await _userService.UpdateProfilePicAsync(dto);
             return result ? Ok("Profile picture has been successfully updated.") : NotFound();
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPagedResult([FromQuery] UserFilterDto filterDto)
+        public async Task<IActionResult> GetPagedResultAsync([FromQuery] UserFilterDto filterDto)
         {
             var result = await _userService.GetAllAsync(filterDto);
             return Ok(result);
         }
 
         [HttpDelete]
-        public async Task<IActionResult> Remove(int id)
+        public async Task<IActionResult> RemoveAsync(int id)
         {
             var result = await _userService.RemoveAsync(id);
             return result ? Ok("User has been successfully removed.") : NotFound();

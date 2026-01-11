@@ -18,14 +18,14 @@ namespace Blogoria.Services
             _repository = userRepository;
         }
 
-        public async Task<UserDto> CreateAsync(UserDto userDto)
+        public async Task<UserDto> CreateAsync(CreateUserDto userDto)
         {
             // Esures that email must be new and not already registered
             if (await _repository.ExistsByEmailAsync(userDto.Email))
                 throw new DomainException("A user already exists with that email.");
 
             var user = User.Create(
-                profilePic: userDto.ProfilePic,
+                profilePic: null,
                 email: userDto.Email,
                 username: userDto.Username,
                 password: userDto.Password
@@ -33,7 +33,7 @@ namespace Blogoria.Services
 
             await _repository.AddAsync(user);
 
-            return userDto;
+            return UserMapper.ToDto(user);
         }
 
         public async Task<PagedResultDto<UserDto>> GetAllAsync(UserFilterDto filterDto)

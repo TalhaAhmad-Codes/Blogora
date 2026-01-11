@@ -17,7 +17,7 @@ namespace Blogoria.Services
             _repository = blogRepository;
         }
 
-        public async Task<BlogDto> CreateAsync(BlogDto blogDto)
+        public async Task<BlogDto> CreateAsync(CreateBlogDto blogDto)
         {
             var blog = Blog.Create(
                 featuredImage: blogDto.FeaturedImage,
@@ -27,7 +27,7 @@ namespace Blogoria.Services
             );
 
             await _repository.AddAsync(blog);
-            return blogDto;
+            return BlogMapper.ToDto(blog);
         }
 
         public async Task<PagedResultDto<BlogDto>> GetAllAsync(BlogFilterDto filterDto)

@@ -34,6 +34,12 @@ namespace Blogoria.Misc
                 throw new DomainException($"{property} must be between the range of {rangeStart} and {rangeEnd}.");
         }
 
+        public static void AgainstInvalidRange(int start, int end, string property)
+        {
+            if (start > end)
+                throw new DomainException($"{property} has invalid range of ({start}, {end}).");
+        }
+
         public static void AgainstInvalidEmail(string email)
         {
             var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";

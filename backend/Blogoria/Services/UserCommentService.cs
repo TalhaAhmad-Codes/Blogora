@@ -17,7 +17,7 @@ namespace Blogoria.Services
             _repository = repository;
         }
 
-        public async Task<UserCommentDto> AddUserCommentAsync(UserCommentDto userCommentDto)
+        public async Task<UserCommentDto> AddUserCommentAsync(AddUserCommentDto userCommentDto)
         {
             var userComment = UserComment.Create(
                 userId: userCommentDto.UserId,
@@ -27,7 +27,7 @@ namespace Blogoria.Services
 
             await _repository.AddAsync(userComment);
 
-            return userCommentDto;
+            return UserCommentMapper.ToDto(userComment);
         }
 
         public async Task<PagedResultDto<UserCommentDto>> GetAllAsync(UserCommentFilterDto filterDto)

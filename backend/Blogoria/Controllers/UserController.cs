@@ -1,5 +1,7 @@
-﻿using Blogoria.Contracts.Common;
-using Blogoria.Contracts.Users;
+﻿using Blogoria.DTOs.Common;
+using Blogoria.DTOs.UserDTOs;
+using Blogoria.DTOs.UserDTOs.UserUpdateDtos;
+using Blogoria.Misc.Exceptions;
 using Blogoria.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,10 +19,25 @@ namespace Blogoria.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateUserRequest request)
+        public async Task<IActionResult> Create(UserDto user)
         {
-            var result = await _userService.CreateAsync(request);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            try
+            {
+                var result = await _userService.CreateAsync(user);
+                return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            }
+            catch (InvalidStringException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (InvalidCredentialsException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (EmailPatternMismatchException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpGet("{id:int}")]
@@ -30,41 +47,71 @@ namespace Blogoria.Controllers
             return user is null ? NotFound() : Ok(user);
         }
 
-        [HttpGet("{email}")]
-        public async Task<IActionResult> GetByEmail(string email)
-        {
-            var user = await _userService.GetByEmailAsync(email);
-            return user is null ? NotFound() : Ok(user);
-        }
-
         [HttpPut]
         [Route("/api/users/update/username")]
-        public async Task<IActionResult> UpdateUsername(int id, UpdateUsernameRequest request)
+        public async Task<IActionResult> UpdateUsername(UserUpdateUsernameDto dto)
         {
-            bool result = await _userService.UpdateUsernameAsync(id, request);
-            return result ? Ok(result) : NotFound();
+            try
+            {
+                bool result = await _userService.UpdateUsernameAsync(dto);
+                return result ? Ok("Username has been successfully updated.") : NotFound();
+            }
+            catch (InvalidStringException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPut]
         [Route("/api/users/update/email")]
-        public async Task<IActionResult> UpdateEmail(int id, UpdateEmailRequest request)
+        public async Task<IActionResult> UpdateEmail(UserUpdateEmailDto dto)
         {
-            bool result = await _userService.UpdateEmailAsync(id, request);
-            return result ? Ok(result) : NotFound();
+            try
+            {
+                bool result = await _userService.UpdateEmailAsync(dto);
+                return result ? Ok("Email has been successfully updated.") : NotFound();
+            }
+            catch (InvalidStringException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (EmailPatternMismatchException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
 
         [HttpPut]
         [Route("/api/users/update/password")]
-        public async Task<IActionResult> UpdatePassword(int id, UpdatePasswordRequest request)
+        public async Task<IActionResult> UpdatePassword(UserUpdatePasswordDto dto)
         {
-            bool result = await _userService.UpdatePasswordAsync(id, request);
-            return result ? Ok(result) : NotFound();
+            try
+            {
+                bool result = await _userService.UpdatePasswordAsync(dto);
+                return result ? Ok("Password has been successfully updated.") : NotFound();
+            }
+            catch (InvalidStringException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (InvalidCredentialsException e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("/api/users/update/profile-pic")]
+        public async Task<IActionResult> UpdateProfilePic(UserUpdateProfilePicDto dto)
+        {
+            bool result = await _userService.UpdateProfilePicAsync(dto);
+            return result ? Ok("Profile picture has been successfully updated.") : NotFound();
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPaged([FromQuery] PagedRequest request)
+        public async Task<IActionResult> GetPagedResult([FromQuery] UserFilterDto filterDto)
         {
-            var result = await _userService.GetPagedAsync(request);
+            var result = await _userService.GetAllAsync(filterDto);
             return Ok(result);
         }
 
@@ -72,7 +119,7 @@ namespace Blogoria.Controllers
         public async Task<IActionResult> Remove(int id)
         {
             var result = await _userService.RemoveAsync(id);
-            return result ? Ok(result) : NotFound();
+            return result ? Ok("User has been successfully removed.") : NotFound();
         }
     }
 }

@@ -27,6 +27,8 @@ namespace Blogoria
             // Add services
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IBlogService, BlogService>();
+            builder.Services.AddScoped<IUserReactionService, UserReactionService>();
+            builder.Services.AddScoped<IUserCommentService, UserCommentService>();
 
             // Add services to the container.
             builder.Services.AddControllers();

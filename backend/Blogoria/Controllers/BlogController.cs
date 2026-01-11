@@ -1,5 +1,4 @@
-﻿using Blogoria.Contracts.Blogs;
-using Blogoria.Contracts.Common;
+﻿using Blogoria.DTOs.BlogDTOs;
 using Blogoria.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -17,11 +16,9 @@ namespace Blogoria.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(
-            [FromQuery] int authorId,
-            CreateBlogRequest request)
+        public async Task<IActionResult> Create(BlogDto blogDto)
         {
-            var blog = await _blogService.CreateAsync(authorId, request);
+            var blog = await _blogService.CreateAsync(blogDto);
             return Ok(blog);
         }
 
@@ -33,9 +30,9 @@ namespace Blogoria.Controllers
         }
         
         [HttpGet]
-        public async Task<IActionResult> GetFiltered(FilterBlogRequest filterRequest, [FromQuery] PagedRequest pagedRequest)
+        public async Task<IActionResult> GetPagedResult(BlogFilterDto filterDto)
         {
-            var result = await _blogService.GetFilteredAsync(filterRequest, pagedRequest);
+            var result = await _blogService.GetAllAsync(filterDto);
             return Ok(result);
         }
     }

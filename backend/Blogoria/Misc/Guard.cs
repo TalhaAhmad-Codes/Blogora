@@ -1,5 +1,4 @@
-﻿using Blogoria.Misc.Exceptions;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace Blogoria.Misc
 {
@@ -8,38 +7,38 @@ namespace Blogoria.Misc
         public static void AgainstNullString(string value, string property)
         {
             if (string.IsNullOrWhiteSpace(value))
-                throw new InvalidStringException($"{property} cannot be empty.");
+                throw new DomainException($"{property} cannot be empty.");
         }
 
         public static void AgainstNegative(decimal value, string property)
         {
             if (value < 0)
-                throw new InvalidValueException($"{property} cannot be negative.");
+                throw new DomainException($"{property} cannot be negative.");
         }
 
         public static void AgainstZeroOrLess(int value, string property)
         {
             if (value <= 0)
-                throw new InvalidValueException($"{property} must be greater than zero.");
+                throw new DomainException($"{property} must be greater than zero.");
         }
 
-        public static void AgainstLowPasswordLength(string value, int limit, string property)
+        public static void AgainstLowPasswordLength(string value, int limit)
         {
             if (value.Length < limit)
-                throw new InvalidCredentialsException($"{property} length must be at least {limit}.");
+                throw new DomainException($"The given password length is invalid, it must be at least {limit} characters long.");
         }
 
         public static void AgainstOutOfRange(int rangeStart, int rangeEnd, int value, string property)
         {
             if (value < rangeStart || value > rangeEnd)
-                throw new OutOfRangeException($"{property} must be between the range of {rangeStart} and {rangeEnd}.");
+                throw new DomainException($"{property} must be between the range of {rangeStart} and {rangeEnd}.");
         }
 
         public static void AgainstInvalidEmail(string email)
         {
             var pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
             if (!Regex.IsMatch(email, pattern))
-                throw new EmailPatternMismatchException("Email format is invalid.");
+                throw new DomainException("The given email format is invalid.");
         }
     }
 }

@@ -1,7 +1,6 @@
-﻿using Blogoria.DTOs.Common;
-using Blogoria.DTOs.UserDTOs;
+﻿using Blogoria.DTOs.UserDTOs;
 using Blogoria.DTOs.UserDTOs.UserUpdateDtos;
-using Blogoria.Misc.Exceptions;
+using Blogoria.Misc;
 using Blogoria.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,15 +25,7 @@ namespace Blogoria.Controllers
                 var result = await _userService.CreateAsync(user);
                 return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
             }
-            catch (InvalidStringException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (InvalidCredentialsException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (EmailPatternMismatchException e)
+            catch (DomainException e)
             {
                 return BadRequest(e.Message);
             }
@@ -56,7 +47,7 @@ namespace Blogoria.Controllers
                 bool result = await _userService.UpdateUsernameAsync(dto);
                 return result ? Ok("Username has been successfully updated.") : NotFound();
             }
-            catch (InvalidStringException e)
+            catch (DomainException e)
             {
                 return BadRequest(e.Message);
             }
@@ -71,11 +62,7 @@ namespace Blogoria.Controllers
                 bool result = await _userService.UpdateEmailAsync(dto);
                 return result ? Ok("Email has been successfully updated.") : NotFound();
             }
-            catch (InvalidStringException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (EmailPatternMismatchException e)
+            catch (DomainException e)
             {
                 return BadRequest(e.Message);
             }
@@ -90,11 +77,7 @@ namespace Blogoria.Controllers
                 bool result = await _userService.UpdatePasswordAsync(dto);
                 return result ? Ok("Password has been successfully updated.") : NotFound();
             }
-            catch (InvalidStringException e)
-            {
-                return BadRequest(e.Message);
-            }
-            catch (InvalidCredentialsException e)
+            catch (DomainException e)
             {
                 return BadRequest(e.Message);
             }

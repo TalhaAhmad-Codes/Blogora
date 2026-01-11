@@ -2,7 +2,7 @@
 using Blogoria.DTOs.UserDTOs;
 using Blogoria.DTOs.UserDTOs.UserUpdateDtos;
 using Blogoria.Mappers;
-using Blogoria.Misc.Exceptions;
+using Blogoria.Misc;
 using Blogoria.Models.Entities;
 using Blogoria.Repositories.Interfaces;
 using Blogoria.Services.Interfaces;
@@ -22,7 +22,7 @@ namespace Blogoria.Services
         {
             // Esures that email must be new and not already registered
             if (await _repository.ExistsByEmailAsync(userDto.Email))
-                throw new EmailAlreadyExistsException("A user already exists with that email.");
+                throw new DomainException("A user already exists with that email.");
 
             var user = User.Create(
                 profilePic: userDto.ProfilePic,
@@ -83,7 +83,7 @@ namespace Blogoria.Services
 
             // User must confirm new password
             if (dto.NewPassword != dto.ConfirmPassword)
-                throw new InvalidCredentialsException("Password didn't match.");
+                throw new DomainException("Password didn't match.");
 
             user.UpdatePassword(dto.OldPassword, dto.NewPassword);
             await _repository.UpdateAsync(user);

@@ -1,5 +1,4 @@
 ﻿using Blogoria.Misc;
-using Blogoria.Misc.Exceptions;
 using Blogoria.Models.ValueObjects;
 
 namespace Blogoria.Models.Entities
@@ -28,7 +27,7 @@ namespace Blogoria.Models.Entities
             // Guard against invalid values
             Guard.AgainstNullString(username, nameof(Username));
             Guard.AgainstNullString(password, nameof(PasswordHash));
-            Guard.AgainstLowPasswordLength(password, 8, nameof(PasswordHash));
+            Guard.AgainstLowPasswordLength(password, 8);
 
             // Assigning values
             ProfilePic = profilePic;
@@ -57,7 +56,7 @@ namespace Blogoria.Models.Entities
         public void UpdateEmail(string password, string email)
         {
             if (!PasswordHasher.Verify(password, PasswordHash))
-                throw new InvalidCredentialsException("Password didn't match.");
+                throw new DomainException("Password didn't match.");
 
             Email = Email.Create(email);
 
@@ -79,11 +78,11 @@ namespace Blogoria.Models.Entities
         {
             Guard.AgainstNullString(oldPassword, nameof(PasswordHash));
             Guard.AgainstNullString(newPassword, nameof(PasswordHash));
-            Guard.AgainstLowPasswordLength(newPassword, 8, nameof(PasswordHash));
+            Guard.AgainstLowPasswordLength(newPassword, 8);
 
             // Rule: For security concern, the user must enter old password to change his current password.
             if (!PasswordHasher.Verify(oldPassword, PasswordHash))
-                throw new InvalidCredentialsException("Provided password didn't match with old one.");
+                throw new DomainException("Provided password didn't match with old one.");
 
             PasswordHash = PasswordHasher.Hash(newPassword);
 

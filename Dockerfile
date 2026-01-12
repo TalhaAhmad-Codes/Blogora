@@ -1,14 +1,17 @@
-# ---- Build stage ----
+# ---------- Build stage ----------
 FROM mcr.microsoft.com/dotnet/sdk:10.0-preview AS build
 WORKDIR /src
 
-# Copy backend only
-COPY backend/ ./
+# Copy backend source
+COPY backend/ ./backend/
+
+# Move into project folder (IMPORTANT)
+WORKDIR /src/backend/Blogoria
 
 RUN dotnet restore
 RUN dotnet publish -c Release -o /app
 
-# ---- Runtime stage ----
+# ---------- Runtime stage ----------
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-preview
 WORKDIR /app
 

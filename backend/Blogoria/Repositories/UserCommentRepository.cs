@@ -1,33 +1,36 @@
 ﻿using Blogoria.Data;
 using Blogoria.DTOs.Common;
 using Blogoria.DTOs.UserCommentDTOs;
-using Blogoria.Interfaces.Repositories;
 using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
-    public class UserCommentRepository : GeneralRepository<UserComment>, IUserCommentRepository
+    public sealed class UserCommentRepository : GeneralRepository<UserComment>, IUserCommentRepository
     {
         // Constructor
         public UserCommentRepository(BlogoriaDbContext context) : base(context) { }
+        public async Task<bool> UserExists(int userId)
+            => await _context.Users.AnyAsync(u => u.Id == userId);
 
-        // Method - Get all user comments by applying filters
-        public async Task<PagedResultDto<UserComment>> GetFilteredUserCommentsAsync(UserCommentFilterDto filter)
+        public async Task<bool> BlogExists(int blogId)
+            => await _context.Blogs.AnyAsync(b => b.Id == blogId);
+
+        public async Task<PagedResultDto<UserComment>> GetAllAsync(UserCommentFilterDto filterDto)
         {
-            var query = _dbSet.AsQueryable();
+            var query = _set.AsQueryable();
 
             // Applying filters
-            if (filter.UserId.HasValue)
-                query = query.Where(c => c.UserId == filter.UserId);
+            if (filterDto.UserId.HasValue)
+                query = query.Where(c => c.UserId == filterDto.UserId);
 
-            // Calculation & applying paged result
+            if (filterDto.BlogId.HasValue)
+                query = query.Where(c => c.BlogId == filterDto.BlogId);
+
+            // Getting paged result
             var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToListAsync();
+            var items = await GetPagedResultItemsAsync(query, filterDto.PageNumber, filterDto.PageSize);
 
             return new PagedResultDto<UserComment>
             {

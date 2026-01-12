@@ -4,6 +4,7 @@ using Blogoria.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Blogoria.Migrations
 {
     [DbContext(typeof(BlogoriaDbContext))]
-    partial class BlogoriaDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260103072509_FinalConfigurations")]
+    partial class FinalConfigurations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -54,7 +57,7 @@ namespace Blogoria.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Blogs", (string)null);
+                    b.ToTable("Blogs");
                 });
 
             modelBuilder.Entity("Blogoria.Models.Entities.User", b =>
@@ -87,7 +90,7 @@ namespace Blogoria.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("Blogoria.Models.Entities.UserComment", b =>
@@ -120,7 +123,7 @@ namespace Blogoria.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserComments", (string)null);
+                    b.ToTable("UserComments");
                 });
 
             modelBuilder.Entity("Blogoria.Models.Entities.UserReaction", b =>
@@ -153,7 +156,7 @@ namespace Blogoria.Migrations
                     b.HasIndex("UserId", "BlogId")
                         .IsUnique();
 
-                    b.ToTable("UserReactions", (string)null);
+                    b.ToTable("UserReactions");
                 });
 
             modelBuilder.Entity("Blogoria.Models.Entities.Blog", b =>
@@ -184,7 +187,7 @@ namespace Blogoria.Migrations
                             b1.HasIndex("Value")
                                 .IsUnique();
 
-                            b1.ToTable("Users", (string)null);
+                            b1.ToTable("Users");
 
                             b1.WithOwner()
                                 .HasForeignKey("UserId");

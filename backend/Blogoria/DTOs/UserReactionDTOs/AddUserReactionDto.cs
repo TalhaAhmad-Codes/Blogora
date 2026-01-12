@@ -1,9 +1,8 @@
-﻿using Blogoria.DTOs.Common;
-using Blogoria.Models.Enums;
+﻿using Blogoria.Models.Enums;
 
 namespace Blogoria.DTOs.UserReactionDTOs
 {
-    public sealed class UserReactionDto : AuditableDto
+    public sealed class AddUserReactionDto
     {
         public int UserId { get; init; }
         public int BlogId { get; init; }

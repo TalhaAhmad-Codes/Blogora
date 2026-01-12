@@ -6,6 +6,7 @@ namespace Blogoria.DTOs.UserReactionDTOs
     public sealed class UserReactionFilterDto : BaseFilterDto
     {
         public int? UserId { get; init; }
+        public int? BlogId { get; init; }
         public ReactionType? ReactionType { get; init; }
     }
 }

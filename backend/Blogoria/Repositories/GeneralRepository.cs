@@ -1,49 +1,60 @@
 ﻿using Blogoria.Data;
-using Blogoria.Interfaces.Repositories;
+using Blogoria.Misc;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
 {
     public abstract class GeneralRepository<T> : IGeneralRepository<T> where T : class
     {
-        // Attributes
         protected readonly BlogoriaDbContext _context;
-        protected readonly DbSet<T> _dbSet;
+        protected readonly DbSet<T> _set;
 
-        // Constructor
-        protected GeneralRepository(BlogoriaDbContext context)
+        public GeneralRepository(BlogoriaDbContext context)
         {
             _context = context;
-            _dbSet = _context.Set<T>();
+            _set = _context.Set<T>();
         }
 
-        // Method - Get all entities
-        public async Task<IEnumerable<T>?> GetAllAsync()
-            => await _dbSet.ToListAsync();
-
-        // Method - Get entity by Id
+        // Get an entity by Id
         public async Task<T?> GetByIdAsync(int id)
-            => await _dbSet.FindAsync(id);
+        {
+            Guard.AgainstZeroOrLess(id, "Id");
 
-        // Method - Add an entity into Database
+            return await _set.FindAsync(id);
+        }
+
+        // Add an entity
         public async Task AddAsync(T entity)
         {
-            await _dbSet.AddAsync(entity);
+            await _set.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
 
-        // Method - Update an entity inside Database
+        // Update an entity
         public async Task UpdateAsync(T entity)
         {
-            _dbSet.Update(entity);
+            _set.Update(entity);
             await _context.SaveChangesAsync();
         }
 
-        // Method - Remove an entity from Database
+        // Remove an entity
         public async Task RemoveAsync(T entity)
         {
-            _dbSet.Remove(entity);
+            _set.Remove(entity);
             await _context.SaveChangesAsync();
+        }
+
+        // Get paged result items
+        protected async Task<List<T>> GetPagedResultItemsAsync(IQueryable<T> query, int pageNumber, int pageSize)
+        {
+            Guard.AgainstZeroOrLess(pageNumber, "Page number");
+            Guard.AgainstZeroOrLess(pageSize, "Page size");
+
+            return await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
         }
     }
 }

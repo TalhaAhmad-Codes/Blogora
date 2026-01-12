@@ -1,8 +1,9 @@
 ﻿using Blogoria.Data;
 using Blogoria.DTOs.BlogDTOs;
 using Blogoria.DTOs.Common;
-using Blogoria.Interfaces.Repositories;
+using Blogoria.Misc;
 using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
@@ -12,44 +13,97 @@ namespace Blogoria.Repositories
         // Constructor
         public BlogRepository(BlogoriaDbContext context) : base(context) { }
 
-        // Method - Get blog by id including comments and reactions
-        public async Task<Blog?> GetBlogAsync(int id)
-            => await _dbSet
-                .Include(b => b.Comments)
-                .Include(b => b.Reactions)
-                .FirstOrDefaultAsync(b => b.Id == id);
-
-        // Method - Get all blogs by applying filters
-        public async Task<PagedResultDto<Blog>> GetFilteredBlogsAsync(BlogFilterDto filter)
+        public async Task<PagedResultDto<Blog>> GetAllAsync(BlogFilterDto filterDto)
         {
-            var query = _dbSet.AsQueryable();
+            var query = _set.AsQueryable();
 
             // Applying filters
-            if (filter.BlogUserId.HasValue)
-                query = query.Where(b => b.UserId == filter.BlogUserId.Value);
+            if (filterDto.AuthorId.HasValue)
+            {
+                var authorId = filterDto.AuthorId.Value;
 
-            if (filter.MinReactionsCount.HasValue)
-                query = query.Where(b => b.TotalReactions >= filter.MinReactionsCount.Value);
+                Guard.AgainstZeroOrLess(authorId, nameof(filterDto.AuthorId));
 
-            if (filter.MaxReactionsCount.HasValue)
-                query = query.Where(b => b.TotalReactions <= filter.MaxReactionsCount.Value);
+                query = query.Where(b => b.UserId == authorId);
+            }
 
-            if (filter.MinCommentsCount.HasValue)
-                query = query.Where(b => b.TotalComments >= filter.MinCommentsCount.Value);
+            if (filterDto.CommentOfUserId.HasValue)
+            {
+                var commentOfUserId = filterDto.CommentOfUserId.Value;
 
-            if (filter.MaxCommentsCount.HasValue)
-                query = query.Where(b => b.TotalComments <= filter.MaxCommentsCount.Value);
+                Guard.AgainstZeroOrLess(commentOfUserId, nameof(filterDto.CommentOfUserId));
+                
+                query = query.Include(b => b.Comments.FirstOrDefault(c => c.UserId == commentOfUserId));
+            }
+            else
+                query = query.Include(b => b.Comments);
 
-            if (filter.ReactionType.HasValue)
-                query = query.Where(b => b.Reactions.Any(r => r.ReactionType == filter.ReactionType.Value));
+            if (filterDto.ReactionOfUserId.HasValue)
+            {
+                var reactionOfUserId = filterDto.ReactionOfUserId.Value;
 
-            // Calculation & applying paged result
+                Guard.AgainstZeroOrLess(reactionOfUserId, nameof(filterDto.ReactionOfUserId));
+
+                query = query.Include(b => b.Reactions.FirstOrDefault(r => r.UserId == reactionOfUserId));
+            }
+            else
+                query = query.Include(b => b.Reactions);
+
+            if (filterDto.MinCommentsCount.HasValue)
+            {
+                var count = filterDto.MinCommentsCount.Value;
+
+                Guard.AgainstNegative(count, nameof(filterDto.MinCommentsCount));
+
+                query = query.Where(b => b.Comments.Count >= count);
+            }
+
+            if (filterDto.MaxCommentsCount.HasValue)
+            {
+                var count = filterDto.MaxCommentsCount.Value;
+
+                Guard.AgainstNegative(count, nameof(filterDto.MaxCommentsCount));
+
+                // Guard against invalid comments count range
+                if (filterDto.MinCommentsCount.HasValue)
+                    Guard.AgainstInvalidRange(
+                        start: filterDto.MinCommentsCount.Value,
+                        end: count,
+                        property: "Comments count"
+                    );
+
+                query = query.Where(b => b.Comments.Count <= count);
+            }
+
+            if (filterDto.MinReactionsCount.HasValue)
+            {
+                var count = filterDto.MinReactionsCount.Value;
+
+                Guard.AgainstNegative(count, nameof(filterDto.MinReactionsCount));
+
+                query = query.Where(b => b.Reactions.Count >= count);
+            }
+
+            if (filterDto.MaxReactionsCount.HasValue)
+            {
+                var count = filterDto.MaxReactionsCount.Value;
+
+                Guard.AgainstNegative(count, nameof(filterDto.MaxReactionsCount));
+
+                // Guard against invalid reactions count range
+                if (filterDto.MinReactionsCount.HasValue)
+                    Guard.AgainstInvalidRange(
+                        start: filterDto.MinReactionsCount.Value,
+                        end: count,
+                        property: "Reactions count"
+                    );
+
+                query = query.Where(b => b.Reactions.Count <= count);
+            }
+
+            // Getting paged result
             var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToListAsync();
+            var items = await GetPagedResultItemsAsync(query, filterDto.PageNumber, filterDto.PageSize);
 
             return new PagedResultDto<Blog>
             {

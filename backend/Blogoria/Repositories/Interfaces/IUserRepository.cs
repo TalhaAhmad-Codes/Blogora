@@ -2,10 +2,11 @@
 using Blogoria.DTOs.UserDTOs;
 using Blogoria.Models.Entities;
 
-namespace Blogoria.Interfaces.Repositories
+namespace Blogoria.Repositories.Interfaces
 {
     public interface IUserRepository : IGeneralRepository<User>
     {
-        Task<PagedResultDto<User>> GetFilteredUsersAsync(UserFilterDto filter);
+        Task<bool> ExistsByEmailAsync(string email);
+        Task<PagedResultDto<User>> GetAllAsync(UserFilterDto filterDto);
     }
 }

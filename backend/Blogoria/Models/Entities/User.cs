@@ -1,5 +1,4 @@
 ﻿using Blogoria.Misc;
-using Blogoria.Misc.Exceptions;
 using Blogoria.Models.ValueObjects;
 
 namespace Blogoria.Models.Entities
@@ -11,26 +10,34 @@ namespace Blogoria.Models.Entities
         public Email Email { get; private set; }
         public string Username { get; private set; }
         public string PasswordHash { get; private set; }
+        
+        // Foriegn Attributes
+        private readonly List<UserReaction> _reactions = new();
+        private readonly List<UserComment> _comments = new();
+        
+        // Navigation properties
+        public IReadOnlyCollection<UserReaction> Reactions => _reactions;
+        public IReadOnlyCollection<UserComment> Comments => _comments;
 
         // Constructors
         private User() { }
 
-        private User(byte[]? profilePic, Email email, string username, string password)
+        private User(byte[]? profilePic, string email, string username, string password)
         {
             // Guard against invalid values
             Guard.AgainstNullString(username, nameof(Username));
             Guard.AgainstNullString(password, nameof(PasswordHash));
-            Guard.AgainstLowPasswordLength(password, 8, nameof(PasswordHash));
+            Guard.AgainstLowPasswordLength(password, 8);
 
             // Assigning values
             ProfilePic = profilePic;
-            Email = email;
+            Email = Email.Create(email);
             Username = username;
             PasswordHash = PasswordHasher.Hash(password);
         }
 
         // Method - Create a new user
-        public static User Create(byte[]? profilePic, Email email, string username, string password)
+        public static User Create(byte[]? profilePic, string email, string username, string password)
             => new(profilePic, email, username, password);
 
         /*******************************************/
@@ -38,7 +45,7 @@ namespace Blogoria.Models.Entities
         /*******************************************/
 
         // Update profile pic
-        public void UpdateProfilePic(byte[]? profilePic = null)
+        public void UpdateProfilePic(byte[]? profilePic)
         {
             ProfilePic = profilePic;
             
@@ -46,8 +53,11 @@ namespace Blogoria.Models.Entities
         }
 
         // Update email address
-        public void UpdateEmail(string email)
+        public void UpdateEmail(string password, string email)
         {
+            if (!PasswordHasher.Verify(password, PasswordHash))
+                throw new DomainException("Password didn't match.");
+
             Email = Email.Create(email);
 
             MarkUpdate();
@@ -68,11 +78,11 @@ namespace Blogoria.Models.Entities
         {
             Guard.AgainstNullString(oldPassword, nameof(PasswordHash));
             Guard.AgainstNullString(newPassword, nameof(PasswordHash));
-            Guard.AgainstLowPasswordLength(newPassword, 8, nameof(PasswordHash));
+            Guard.AgainstLowPasswordLength(newPassword, 8);
 
             // Rule: For security concern, the user must enter old password to change his current password.
             if (!PasswordHasher.Verify(oldPassword, PasswordHash))
-                throw new InvalidCredentialsException("Provided password didn't match with old one.");
+                throw new DomainException("Provided password didn't match with old one.");
 
             PasswordHash = PasswordHasher.Hash(newPassword);
 

@@ -1,5 +1,4 @@
 ﻿using Blogoria.Misc;
-using Blogoria.Misc.Exceptions;
 
 namespace Blogoria.Models.Entities
 {
@@ -18,10 +17,8 @@ namespace Blogoria.Models.Entities
         
         // Navigation properties (EF Core)
         public User User { get; private set; }
-        public IQueryable<UserComment> Comments
-            => _comments.AsQueryable();
-        public IQueryable<UserReaction> Reactions 
-            => _reactions.AsQueryable();
+        public IReadOnlyCollection<UserComment> Comments => _comments;
+        public IReadOnlyCollection<UserReaction> Reactions => _reactions;
 
         // Constructors
         private Blog() { }
@@ -81,11 +78,11 @@ namespace Blogoria.Models.Entities
         {
             // Rule: User can't react on his own blog
             if (userReaction.UserId == UserId)
-                throw new SelfReactionException("User can't react on his own post.");
+                throw new DomainException("User can't react on his own post.");
 
             // Rule: User can't react on an already reacted blog
             if (_reactions.Any(r => r.UserId == userReaction.UserId))
-                throw new DuplicateReactionException("User has already reacted to this blog.");
+                throw new DomainException("User has already reacted to this blog.");
 
             _reactions.Add(userReaction);
 
@@ -96,7 +93,7 @@ namespace Blogoria.Models.Entities
         public void RemoveUserReaction(UserReaction userReaction)
         {
             if (!_reactions.Remove(userReaction))
-                throw new EntityNotFoundException("Reaction not found.");
+                throw new DomainException("Reaction not found.");
 
             MarkUpdate();
         }
@@ -113,7 +110,7 @@ namespace Blogoria.Models.Entities
         public void RemoveUserComment(UserComment userComment)
         {
             if (!_comments.Remove(userComment))
-                throw new EntityNotFoundException("Comment not found.");
+                throw new DomainException("Comment not found.");
 
             MarkUpdate();
         }

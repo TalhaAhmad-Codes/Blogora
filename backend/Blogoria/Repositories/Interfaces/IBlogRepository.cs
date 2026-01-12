@@ -2,11 +2,10 @@
 using Blogoria.DTOs.Common;
 using Blogoria.Models.Entities;
 
-namespace Blogoria.Interfaces.Repositories
+namespace Blogoria.Repositories.Interfaces
 {
     public interface IBlogRepository : IGeneralRepository<Blog>
     {
-        Task<Blog?> GetBlogAsync(int id);
-        Task<PagedResultDto<Blog>> GetFilteredBlogsAsync(BlogFilterDto filter);
+        Task<PagedResultDto<Blog>> GetAllAsync(BlogFilterDto filterDto);
     }
 }

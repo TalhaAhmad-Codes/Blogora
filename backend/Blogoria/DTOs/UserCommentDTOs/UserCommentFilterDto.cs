@@ -2,8 +2,9 @@
 
 namespace Blogoria.DTOs.UserCommentDTOs
 {
-    public class UserCommentFilterDto : BaseFilterDto
+    public sealed class UserCommentFilterDto : BaseFilterDto
     {
         public int? UserId { get; init; }
+        public int? BlogId { get; init; }
     }
 }

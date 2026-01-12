@@ -1,8 +1,6 @@
-﻿using Blogoria.DTOs.Common;
-
-namespace Blogoria.DTOs.BlogDTOs
+﻿namespace Blogoria.DTOs.BlogDTOs
 {
-    public sealed class BlogDto : AuditableDto
+    public sealed class CreateBlogDto
     {
         public int AuthorId { get; init; }
         public byte[]? FeaturedImage { get; init; }

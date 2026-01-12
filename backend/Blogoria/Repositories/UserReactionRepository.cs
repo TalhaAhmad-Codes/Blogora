@@ -1,8 +1,8 @@
 ﻿using Blogoria.Data;
 using Blogoria.DTOs.Common;
 using Blogoria.DTOs.UserReactionDTOs;
-using Blogoria.Interfaces.Repositories;
 using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blogoria.Repositories
@@ -12,25 +12,38 @@ namespace Blogoria.Repositories
         // Constructor
         public UserReactionRepository(BlogoriaDbContext context) : base(context) { }
 
-        // Method - Get user reactions by applying filters
-        public async Task<PagedResultDto<UserReaction>> GetFilteredUserReactionsAsync(UserReactionFilterDto filter)
+        public async Task<bool> BlogExists(int blogId)
+            => await _context.Blogs.AnyAsync(blog => blog.Id == blogId);
+
+        public async Task<bool> UserExists(int userId)
+            => await _context.Users.AnyAsync(u => u.Id == userId);
+
+        public async Task<bool> AlreadyReacted(int blogId, int userId)
         {
-            var query = _dbSet.AsQueryable();
+            var result = await GetAllAsync(new UserReactionFilterDto() {
+                UserId = userId, BlogId = blogId
+            });
+
+            return result.TotalCount > 0;
+        }
+
+        public async Task<PagedResultDto<UserReaction>> GetAllAsync(UserReactionFilterDto filterDto)
+        {
+            var query = _set.AsQueryable();
 
             // Applying filters
-            if (filter.UserId.HasValue)
-                query = query.Where(r => r.UserId == filter.UserId.Value);
+            if (filterDto.UserId.HasValue)
+                query = query.Where(r => r.UserId == filterDto.UserId);
 
-            if (filter.ReactionType.HasValue)
-                query = query.Where(r => r.ReactionType == filter.ReactionType.Value);
+            if (filterDto.BlogId.HasValue)
+                query = query.Where(r => r.BlogId == filterDto.BlogId);
 
-            // Calculation & applying paged result
+            if (filterDto.ReactionType.HasValue)
+                query = query.Where(r => r.ReactionType == filterDto.ReactionType);
+
+            // Getting paged result
             var totalCount = await query.CountAsync();
-
-            var items = await query
-                .Skip((filter.PageNumber - 1) * filter.PageSize)
-                .Take(filter.PageSize)
-                .ToListAsync();
+            var items = await GetPagedResultItemsAsync(query, filterDto.PageNumber, filterDto.PageSize);
 
             return new PagedResultDto<UserReaction>
             {

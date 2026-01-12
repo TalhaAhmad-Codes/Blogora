@@ -12,6 +12,12 @@ namespace Blogoria.Repositories
         // Constructor
         public UserReactionRepository(BlogoriaDbContext context) : base(context) { }
 
+        public async Task<bool> BlogExists(int blogId)
+            => await _context.Blogs.AnyAsync(blog => blog.Id == blogId);
+
+        public async Task<bool> UserExists(int userId)
+            => await _context.Users.AnyAsync(u => u.Id == userId);
+
         public async Task<PagedResultDto<UserReaction>> GetAllAsync(UserReactionFilterDto filterDto)
         {
             var query = _set.AsQueryable();

@@ -6,6 +6,8 @@ namespace Blogoria.Repositories.Interfaces
 {
     public interface IUserCommentRepository : IGeneralRepository<UserComment>
     {
+        Task<bool> UserExists(int userId);
+        Task<bool> BlogExists(int blogId);
         Task<PagedResultDto<UserComment>> GetAllAsync(UserCommentFilterDto filterDto);
     }
 }

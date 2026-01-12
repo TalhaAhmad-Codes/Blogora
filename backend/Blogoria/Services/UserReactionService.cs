@@ -2,6 +2,7 @@
 using Blogoria.DTOs.UserReactionDTOs;
 using Blogoria.DTOs.UserReactionDTOs.UserReactionUpdateDtos;
 using Blogoria.Mappers;
+using Blogoria.Misc;
 using Blogoria.Models.Entities;
 using Blogoria.Repositories.Interfaces;
 using Blogoria.Services.Interfaces;
@@ -19,9 +20,25 @@ namespace Blogoria.Services
 
         public async Task<UserReactionDto> AddUserReaction(AddUserReactionDto userReactionDto)
         {
+            // Check if user and blog exist
+            var userId = userReactionDto.UserId; var blogId = userReactionDto.BlogId;
+
+            if (userId > 0)
+            {
+                if (!await _repository.UserExists(userId))
+                    throw new DomainException($"User of id {userId} doesn't exist.");
+            }
+
+            if (blogId > 0)
+            {
+                if (!await _repository.BlogExists(blogId) && blogId > 0)
+                    throw new DomainException($"Blog of id {blogId} doesn't exist.");
+            }
+
+            // Add the user reaction
             var userReaction = UserReaction.Create(
-                userId: userReactionDto.UserId,
-                blogId: userReactionDto.BlogId,
+                userId: userId,
+                blogId: blogId,
                 reactionType: userReactionDto.ReactionType
             );
 

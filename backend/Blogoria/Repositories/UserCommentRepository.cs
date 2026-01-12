@@ -11,6 +11,11 @@ namespace Blogoria.Repositories
     {
         // Constructor
         public UserCommentRepository(BlogoriaDbContext context) : base(context) { }
+        public async Task<bool> UserExists(int userId)
+            => await _context.Users.AnyAsync(u => u.Id == userId);
+
+        public async Task<bool> BlogExists(int blogId)
+            => await _context.Blogs.AnyAsync(b => b.Id == blogId);
 
         public async Task<PagedResultDto<UserComment>> GetAllAsync(UserCommentFilterDto filterDto)
         {

@@ -2,6 +2,7 @@
 using Blogoria.DTOs.UserCommentDTOs;
 using Blogoria.DTOs.UserCommentDTOs.UserCommentUpdateDtos;
 using Blogoria.Mappers;
+using Blogoria.Misc;
 using Blogoria.Models.Entities;
 using Blogoria.Repositories.Interfaces;
 using Blogoria.Services.Interfaces;
@@ -19,9 +20,25 @@ namespace Blogoria.Services
 
         public async Task<UserCommentDto> AddUserCommentAsync(AddUserCommentDto userCommentDto)
         {
+            // Check if user and blog exist
+            var userId = userCommentDto.UserId; var blogId = userCommentDto.BlogId;
+
+            if (userId > 0)
+            {
+                if (!await _repository.UserExists(userId))
+                    throw new DomainException($"User of id {userId} doesn't exist.");
+            }
+
+            if (blogId > 0)
+            {
+                if (!await _repository.BlogExists(blogId))
+                    throw new DomainException($"Blog of id {blogId} doesn't exist.");
+            }
+
+            // Add user comment
             var userComment = UserComment.Create(
-                userId: userCommentDto.UserId,
-                blogId: userCommentDto.BlogId,
+                userId: userId,
+                blogId: blogId,
                 comment: userCommentDto.Comment
             );
 

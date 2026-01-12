@@ -1,4 +1,5 @@
 ﻿using Blogoria.Data;
+using Blogoria.Misc;
 using Blogoria.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,11 @@ namespace Blogoria.Repositories
 
         // Get an entity by Id
         public async Task<T?> GetByIdAsync(int id)
-            => await _set.FindAsync(id);
+        {
+            Guard.AgainstZeroOrLess(id, "Id");
+
+            return await _set.FindAsync(id);
+        }
 
         // Add an entity
         public async Task AddAsync(T entity)
@@ -42,9 +47,14 @@ namespace Blogoria.Repositories
 
         // Get paged result items
         protected async Task<List<T>> GetPagedResultItemsAsync(IQueryable<T> query, int pageNumber, int pageSize)
-            => await query
+        {
+            Guard.AgainstZeroOrLess(pageNumber, "Page number");
+            Guard.AgainstZeroOrLess(pageSize, "Page size");
+
+            return await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
+        }
     }
 }

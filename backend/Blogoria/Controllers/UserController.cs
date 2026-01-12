@@ -38,8 +38,7 @@ namespace Blogoria.Controllers
             return user is null ? NotFound() : Ok(user);
         }
 
-        [HttpPut]
-        [Route("/api/users/update/username")]
+        [HttpPut("update/username")]
         public async Task<IActionResult> UpdateUsernameAsync(UserUpdateUsernameDto dto)
         {
             try
@@ -53,8 +52,7 @@ namespace Blogoria.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("/api/users/update/email")]
+        [HttpPut("update/email")]
         public async Task<IActionResult> UpdateEmailAsync(UserUpdateEmailDto dto)
         {
             try
@@ -68,8 +66,7 @@ namespace Blogoria.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("/api/users/update/password")]
+        [HttpPut("update/password")]
         public async Task<IActionResult> UpdatePasswordAsync(UserUpdatePasswordDto dto)
         {
             try
@@ -83,8 +80,7 @@ namespace Blogoria.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("/api/users/update/profile-pic")]
+        [HttpPut("update/profile-pic")]
         public async Task<IActionResult> UpdateProfilePicAsync(UserUpdateProfilePicDto dto)
         {
             bool result = await _userService.UpdateProfilePicAsync(dto);

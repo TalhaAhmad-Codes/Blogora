@@ -18,6 +18,15 @@ namespace Blogoria.Repositories
         public async Task<bool> UserExists(int userId)
             => await _context.Users.AnyAsync(u => u.Id == userId);
 
+        public async Task<bool> AlreadyReacted(int blogId, int userId)
+        {
+            var result = await GetAllAsync(new UserReactionFilterDto() {
+                UserId = userId, BlogId = blogId
+            });
+
+            return result.TotalCount > 0;
+        }
+
         public async Task<PagedResultDto<UserReaction>> GetAllAsync(UserReactionFilterDto filterDto)
         {
             var query = _set.AsQueryable();

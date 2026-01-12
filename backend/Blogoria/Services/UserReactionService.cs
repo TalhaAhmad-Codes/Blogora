@@ -23,16 +23,22 @@ namespace Blogoria.Services
             // Check if user and blog exist
             var userId = userReactionDto.UserId; var blogId = userReactionDto.BlogId;
 
-            if (userId > 0)
+            if (userId > 0) // Rule: User must exist
             {
                 if (!await _repository.UserExists(userId))
                     throw new DomainException($"User of id {userId} doesn't exist.");
             }
 
-            if (blogId > 0)
+            if (blogId > 0) // Rule: Blog must exist
             {
                 if (!await _repository.BlogExists(blogId))
                     throw new DomainException($"Blog of id {blogId} doesn't exist.");
+            }
+
+            if (userId > 0 && blogId > 0) // Rule: User can't react twice on a single blog
+            {
+                if (await _repository.AlreadyReacted(blogId, userId))
+                    throw new DomainException("User has already been reacted on this blog. Try updating the reaction.");
             }
 
             // Add the user reaction

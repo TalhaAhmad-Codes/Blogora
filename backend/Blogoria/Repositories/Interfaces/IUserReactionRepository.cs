@@ -8,6 +8,7 @@ namespace Blogoria.Repositories.Interfaces
     {
         Task<bool> UserExists(int userId);
         Task<bool> BlogExists(int blogId);
+        Task<bool> AlreadyReacted(int blogId, int userId);
         Task<PagedResultDto<UserReaction>> GetAllAsync(UserReactionFilterDto filterDto);
     }
 }

@@ -31,7 +31,7 @@ namespace Blogoria.Services
 
             if (blogId > 0)
             {
-                if (!await _repository.BlogExists(blogId) && blogId > 0)
+                if (!await _repository.BlogExists(blogId))
                     throw new DomainException($"Blog of id {blogId} doesn't exist.");
             }
 

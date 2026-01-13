@@ -43,7 +43,7 @@ namespace Blogoria
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 // Enable middleware to serve generated Swagger as a JSON endpoint.
                 app.UseSwagger();
@@ -52,6 +52,11 @@ namespace Blogoria
                 app.UseSwaggerUI();
 
                 app.MapOpenApi();
+            }
+
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseForwardedHeaders();
             }
 
             app.UseHttpsRedirection();

@@ -4,6 +4,7 @@ using Blogoria.Repositories.Interfaces;
 using Blogoria.Services;
 using Blogoria.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
+//using Npgsql.EntityFrameworkCore.PostgreSQL;
 
 namespace Blogoria
 {
@@ -15,8 +16,12 @@ namespace Blogoria
 
             // Add database connection
             builder.Services.AddDbContext<BlogoriaDbContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+                npgsqlOptions =>
+                {
+                    npgsqlOptions.EnableRetryOnFailure();
+                })
+            );
 
             // Add repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -40,10 +45,14 @@ namespace Blogoria
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApi();
 
+            // Port
+            var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+            builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
             {
                 // Enable middleware to serve generated Swagger as a JSON endpoint.
                 app.UseSwagger();
@@ -52,6 +61,11 @@ namespace Blogoria
                 app.UseSwaggerUI();
 
                 app.MapOpenApi();
+            }
+
+            if (!app.Environment.IsDevelopment())
+            {
+                app.UseForwardedHeaders();
             }
 
             app.UseHttpsRedirection();

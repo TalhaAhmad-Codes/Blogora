@@ -1,7 +1,7 @@
 
 ---
 
-# Users - DTO Schemas
+# User - DTOs Schemas
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Placeholder | Data Type | Nullable |
 | -------- | -------- | -------- |
-| **profilePic** | byte-array/string | `Yes` |
+| **profilePic** | byte-array | `Yes` |
 | **email** | string | `No` |
 | **username** | string | `No` |
 | **password** | string | `No` |
@@ -33,7 +33,7 @@
 | **username** | string | `No` |
 | **password** | string | `No` |
 
-> **Note:** The `password` must contail at least 8 characters.
+> **Note:** The `password` must contain at least 8 characters.
 
 ---
 
@@ -65,5 +65,15 @@
 | **confirmPassword** | string | `No` |
 
 > **Note:** To update password, user must enter his old password and also confirm his new password of at least 8 characters long.
+
+---
+
+## Update Profile Pic
+
+| Placeholder | Data Type | Nullable |
+|-------------|-----------|----------|
+| **profilePic** | byte-array | `Yes` |
+
+> **Note:** To update profile-pic, frontend client must convert the image to byte array and then pass it via DTO.
 
 ---

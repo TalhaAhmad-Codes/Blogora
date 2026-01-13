@@ -65,13 +65,6 @@ namespace Blogoria
 
             app.MapControllers();
 
-            // Auto migrations
-            using (var scope = app.Services.CreateScope())
-            {
-                var db = scope.ServiceProvider.GetRequiredService<BlogoriaDbContext>();
-                db.Database.Migrate();
-            }
-
             app.Run();
         }
     }

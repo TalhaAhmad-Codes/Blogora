@@ -1,0 +1,94 @@
+﻿using Blogoria.DTOs.Common;
+using Blogoria.DTOs.UserReactionDTOs;
+using Blogoria.DTOs.UserReactionDTOs.UserReactionUpdateDtos;
+using Blogoria.Mappers;
+using Blogoria.Misc;
+using Blogoria.Models.Entities;
+using Blogoria.Repositories.Interfaces;
+using Blogoria.Services.Interfaces;
+
+namespace Blogoria.Services
+{
+    public sealed class UserReactionService : IUserReactionService
+    {
+        private readonly IUserReactionRepository _repository;
+
+        public UserReactionService(IUserReactionRepository repository)
+        {
+            _repository = repository; 
+        }
+
+        public async Task<UserReactionDto> AddUserReaction(AddUserReactionDto userReactionDto)
+        {
+            // Check if user and blog exist
+            var userId = userReactionDto.UserId; var blogId = userReactionDto.BlogId;
+
+            if (userId > 0) // Rule: User must exist
+            {
+                if (!await _repository.UserExists(userId))
+                    throw new DomainException($"User of id {userId} doesn't exist.");
+            }
+
+            if (blogId > 0) // Rule: Blog must exist
+            {
+                if (!await _repository.BlogExists(blogId))
+                    throw new DomainException($"Blog of id {blogId} doesn't exist.");
+            }
+
+            if (userId > 0 && blogId > 0) // Rule: User can't react twice on a single blog
+            {
+                if (await _repository.AlreadyReacted(blogId, userId))
+                    throw new DomainException("User has already been reacted on this blog. Try updating the reaction.");
+            }
+
+            // Add the user reaction
+            var userReaction = UserReaction.Create(
+                userId: userId,
+                blogId: blogId,
+                reactionType: userReactionDto.ReactionType
+            );
+
+            await _repository.AddAsync(userReaction);
+            return UserReactionMapper.ToDto(userReaction);
+        }
+
+        public async Task<PagedResultDto<UserReactionDto>> GetAllAsync(UserReactionFilterDto filterDto)
+        {
+            var result = await _repository.GetAllAsync(filterDto);
+
+            return new PagedResultDto<UserReactionDto>
+            {
+                Items = result.Items.Select(UserReactionMapper.ToDto).ToList(),
+                TotalCount = result.TotalCount
+            };
+        }
+
+        public async Task<UserReactionDto?> GetByIdAsync(int id)
+        {
+            var userReaction = await _repository.GetByIdAsync(id);
+
+            return (userReaction is null) ? null : UserReactionMapper.ToDto(userReaction);
+        }
+
+        public async Task<bool> RemoveAsync(int id)
+        {
+            var userReaction = await _repository.GetByIdAsync(id);
+
+            if (userReaction is null) return false;
+
+            await _repository.RemoveAsync(userReaction);
+            return true;
+        }
+
+        public async Task<bool> UpdateUserReactionAsync(UserReactionUpdateReactionDto dto)
+        {
+            var userReaction = await _repository.GetByIdAsync(dto.Id);
+
+            if (userReaction is null) return false;
+
+            userReaction.UpdateReactionType(dto.ReactionType);
+            await _repository.UpdateAsync(userReaction);
+            return true;
+        }
+    }
+}

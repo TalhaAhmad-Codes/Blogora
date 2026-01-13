@@ -16,7 +16,12 @@ namespace Blogoria
 
             // Add database connection
             builder.Services.AddDbContext<BlogoriaDbContext>(options =>
-                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
+                npgsqlOptions =>
+                {
+                    npgsqlOptions.EnableRetryOnFailure();
+                })
+            );
 
             // Add repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();

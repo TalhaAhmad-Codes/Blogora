@@ -15,8 +15,7 @@ namespace Blogoria
 
             // Add database connection
             builder.Services.AddDbContext<BlogoriaDbContext>(options =>
-                options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Add repositories
             builder.Services.AddScoped<IUserRepository, UserRepository>();
@@ -64,6 +63,13 @@ namespace Blogoria
             app.UseAuthorization();
 
             app.MapControllers();
+
+            // Auto migrations
+            using (var scope = app.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<BlogoriaDbContext>();
+                db.Database.Migrate();
+            }
 
             app.Run();
         }

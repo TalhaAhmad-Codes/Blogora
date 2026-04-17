@@ -4,7 +4,8 @@ import Blogs from "./Blog"
 import About from "./About"
 import Login from "./Login"
 import Navbar from "./Navbar"
-
+import DarkMode from "./darkmode"
+import { ThemeProvider } from "./themeprovider"
 
 
 function App() {
@@ -18,6 +19,10 @@ function App() {
         </Route>
         <Route path="/login" element={<Login />} />
       </Routes>
+  
+      <ThemeProvider>
+        <DarkMode/>
+      </ThemeProvider>
     </>
   )
 }
